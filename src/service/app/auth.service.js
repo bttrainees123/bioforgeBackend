@@ -2,7 +2,11 @@ const helper = require("../../helper/helper")
 const userModel = require("../../model/user.model")
 const otpModel = require("../../model/otp.model")
 const sendEmail = require("../../helper/sendVerificationEmail");
-const emailTemplateImage = require("../../config/template")
+const emailTemplateImage = require("../../config/template");
+const { request } = require("express");
+const fs = require("fs");
+const path = require("path");
+const mongoose = require("mongoose");
 const authService = {}
 authService.register = async (request) => {
     const hashpassword = await helper.createPassword(request.body.password)
@@ -162,4 +166,30 @@ authService.changePassword = async (request) => {
 authService.accountDelete = async (request) => {
     await userModel.findByIdAndUpdate({ _id: request?.auth?._id }, { is_deleted: "1" })
 }
+authService.updateprofile = async (request) => {
+    const imageData = await userModel.findOne({ _id: request?.body?._id });
+    const oldImage = imageData.profile_img || "";
+    const newImage = request.body.profile_img || "";
+    if (oldImage && oldImage !== newImage) {
+        const imagePath = path.join("public/profile/", oldImage);
+        if (fs.existsSync(imagePath)) {
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error(`Failed to delete image: ${err.message}`);
+                } else {
+                    console.log(`Deleted image: ${oldImage}`);
+                }
+            });
+        }
+    }
+    if (newImage && oldImage !== newImage) {
+        await helper.moveFileFromFolder(newImage, "profile");
+    }
+    await userModel.findByIdAndUpdate(
+        { _id: new mongoose.Types.ObjectId(request?.body?._id) },
+        request.body
+    );
+    return;
+};
+
 module.exports = authService

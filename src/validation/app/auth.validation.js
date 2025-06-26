@@ -57,19 +57,19 @@ class authValidation {
      * Returns the login validation schema.
      * @returns {Joi.ObjectSchema}
      */
-    static login(t) {
+    static login() {
         return Joi.object({
             email: Joi.string()
                 .email({ tlds: { allow: false } })
                 .pattern(/^[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
                 .required()
                 .messages({
-                    "string.empty": t("Email_is_required"),
-                    "string.email": t("Please_provide_a_valid_email_address"),
-                    "string.pattern.base": t("Email_must_contain_only_letters_digits_and_periods_before"),
+                    "string.empty": "Email is required",
+                    "string.email": "Please provide a valid email address",
+                    "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
                 }),
             password: Joi.string().required().messages({
-                "string.empty": t("Password_is_required"),
+                "string.empty": "Password_is_required",
             }),
         });
     }
@@ -193,8 +193,8 @@ class authValidation {
      * @param {Object} data - The user input data.
      * @returns {Object} - Validation result.
      */
-    static validateLogin(data, t) {
-        return authValidation.login(t).validate(data, { abortEarly: false });
+    static validateLogin(data) {
+        return authValidation.login().validate(data, { abortEarly: false });
     }
     /**
   * Validate user forget password data.

@@ -31,20 +31,20 @@ class authController {
             if (validationError) return;
             const userData = await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i') });
             if (!userData) {
-                return responseHelper.Forbidden(response,"Email_not_exists", null, statusCodes.OK);
+                return responseHelper.Forbidden(response,"Email not exists", null, statusCodes.OK);
             } else if (userData.is_deleted === '1' ) {
-                return responseHelper.Forbidden(response, userData?.name+" "+"your_account_is_deleted", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.username+" "+"your account is deleted", null, statusCodes.OK);
             } else if (userData.status === 'inactive') {
-                return responseHelper.Forbidden(response, userData?.name + " "+"your_account_is_inactive_Please_contact_to_admin", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.username + " "+"your account is inactive Please contact to admin", null, statusCodes.OK);
             }
             if (!await helper.comparePassword(request?.body?.password, userData?.password)) {
                 return responseHelper.BadRequest(response,"Password_is_wrong", null, statusCodes.OK);
             }
             else if (userData?.isEmailVerified === false && userData?.type!=='admin') {
-                return responseHelper.Forbidden(response, userData?.name + " "+ "your_account_is_unverified_Please_verify_your_email", { isEmailVerified: false, userId: userData?._id }, statusCodes.OK,);
+                return responseHelper.Forbidden(response, userData?.username + " "+ "your account is unverified Please verify your email", { isEmailVerified: false, userId: userData?._id }, statusCodes.OK,);
             }
             const data = await authService.login(userData);
-            return responseHelper.success(response, data.name + " "+ "is_login_successfully", data, statusCodes.OK);
+            return responseHelper.success(response, data.username + " " + "is login successfully", data, statusCodes.OK);
 
         } catch (error) {
             console.log(error);
