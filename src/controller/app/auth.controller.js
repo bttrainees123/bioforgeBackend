@@ -207,9 +207,9 @@ class authController {
         }
     };
     logout = (req, res) => {
-  res.clearCookie('token');
-  return responseHelper.success(res, "Logged out successfully", null, statusCodes.OK);
-};
+        res.clearCookie('token');
+        return responseHelper.success(res, "Logged out successfully", null, statusCodes.OK);
+    };
 
 }
 
