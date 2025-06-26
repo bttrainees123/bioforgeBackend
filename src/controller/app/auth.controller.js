@@ -206,6 +206,11 @@ class authController {
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
     };
+    logout = (req, res) => {
+  res.clearCookie('token');
+  return responseHelper.success(res, "Logged out successfully", null, statusCodes.OK);
+};
+
 }
 
 module.exports = new authController();

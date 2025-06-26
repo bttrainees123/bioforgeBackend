@@ -16,6 +16,7 @@ userRouter.post("/updateProfile",authController.upateProfile)
 userRouter.post('/add-multiple', authController.addLinks);
 userRouter.post('/add-updateLink', authController.updateLink);
 userRouter.post('/update-Theme', authController.updateTheme);
+userRouter.post('/logout', authController.logout);
 
 userRouter.delete("/deleteUser", adminMiddleWare, userController.delete)
 userRouter.get("/getUser", adminMiddleWare, userController.getAll)
