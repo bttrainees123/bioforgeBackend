@@ -192,4 +192,75 @@ authService.updateprofile = async (request) => {
     return;
 };
 
+authService.addLinks = async (request) => {
+    const userId = request.body?.userId;
+    const links = request.body?.links;
+
+    if (!userId || !Array.isArray(links) || links.length === 0) {
+        throw new Error("userId and a non-empty links array are required");
+    }
+    const user = await userModel.findOne({ _id: new mongoose.Types.ObjectId(userId), is_deleted: "0" });
+    if (!user) {
+        throw new Error("User not found");
+    }
+    user.links.push(...links);
+    await user.save();
+    return user;
+};
+authService.updateLink = async (request) => {
+  const { userId, linkId, linkTitle, linkUrl, linkLogo } = request.body;
+
+  // Validate inputs
+  if (!userId || !linkId || !linkTitle || !linkUrl || !linkLogo) {
+    throw new Error("userId, linkId, and all link fields are required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(linkId)) {
+    throw new Error("Invalid userId or linkId format");
+  }
+
+  const user = await userModel.findOne({ _id: userId, is_deleted: "0" });
+  if (!user) throw new Error("User not found");
+
+  // Find the link by its _id
+  const link = user.links.id(linkId);
+  if (!link) throw new Error("Link not found");
+
+  // Update link fields
+  link.linkTitle = linkTitle;
+  link.linkUrl = linkUrl;
+  link.linkLogo = linkLogo;
+
+  await user.save();
+  return link; // return the updated link only
+};
+authService.updateTheme = async (request) => {
+  const { userId, color, image } = request.body;
+
+  if (!userId) {
+    throw new Error("userId is required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid userId");
+  }
+
+  const user = await userModel.findOne({ _id: userId, is_deleted: "0" });
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Update theme fields if provided
+  if (Array.isArray(color)) {
+    user.theme.color = color;
+  }
+
+  if (image) {
+    user.theme.image = image;
+  }
+
+  await user.save();
+  return user.theme;
+};
+
 module.exports = authService

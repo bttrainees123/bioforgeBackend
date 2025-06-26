@@ -12,7 +12,10 @@ userRouter.post("/verifyOtp",authController.verifyOpt)
 userRouter.post("/changePassword",middleWare,authController.changePassword)
 userRouter.post("/accountDelete",middleWare,authController.accountDelete)
 userRouter.post("/forgetPassword",authController.forgetPassword)
-userRouter.post("/upateProfile",authController.upateProfile)
+userRouter.post("/updateProfile",authController.upateProfile)
+userRouter.post('/add-multiple', authController.addLinks);
+userRouter.post('/add-updateLink', authController.updateLink);
+userRouter.post('/update-Theme', authController.updateTheme);
 
 userRouter.delete("/deleteUser", adminMiddleWare, userController.delete)
 userRouter.get("/getUser", adminMiddleWare, userController.getAll)

@@ -14,7 +14,10 @@ const app = express();
 const PORT = process.env.PORT || 3006;
 mongooseConnection();
 app.use(cors())
-
+app.use(cors({
+  origin: '*', 
+  credentials: true               
+}));
 app.use("/images", express.static(path.join(__dirname, "../public/profile")));
 app.use("/images", express.static(path.join(__dirname, "../public/tempUploads")));
 app.use(express.json({ limit: "50mb" }));

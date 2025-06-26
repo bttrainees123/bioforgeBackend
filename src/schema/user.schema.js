@@ -1,4 +1,18 @@
 const mongoose = require('mongoose');
+    const linkSchema = new mongoose.Schema({
+  linkTitle: {
+    type: String,
+    required: true,
+  },
+  linkUrl: {
+    type: String,
+    required: true,
+  },
+  linkLogo: {
+    type: String,
+    required: true,
+  },
+});
 const userSchema = new mongoose.Schema({
     username: {
         type: String
@@ -21,11 +35,16 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     theme: {
-        themeType: {
-            type: String,
-            enum: ["background", "subscribe", "free"],
-            default: "free"
-        },
+        color:[{
+            colorName: {
+                type: String,
+                default: "#000000"
+            },
+            colorCode: {
+                type: String,
+                default: "#000000"
+            }
+        }],
         image: {
             type: String,
             
@@ -36,6 +55,8 @@ const userSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
+
+    links: [linkSchema],
     is_deleted: {
         type: String,
         enum: ["0", "1"],
@@ -46,25 +67,6 @@ const userSchema = new mongoose.Schema({
         enum: [true, false],
         default: false
     },
-    // subscriptionExpiry: {
-    //     type: Date,
-    //     default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    // },
-    // termsAndCondition: {
-    //     type: Boolean,
-    //     enum: [true, false],
-    //     default:false
-    // },
-    // subscription: {
-    //     subscriptionType: {
-    //         type: String,
-    //         enum: ["gold", "subscribe", "free"],
-    //         default: "free"
-    //     },
-    //     amount: {
-    //         type: Number,
-    //         default: 0
-    //     }
-    // }
+    
 }, { timestamps: true });
 module.exports = userSchema;
