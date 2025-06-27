@@ -41,8 +41,8 @@ class authValidation {
                 .pattern(/^[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
                 .required()
                 .messages({
-                    "string.empty": "Email_is_required",
-                    "string.email": "Please_provide_a_valid_email_address",
+                    "string.empty": "Email is required",
+                    "string.email": "Please provide a valid email address",
                     "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
                 }),
             password: Joi.string().min(6).required().messages({
@@ -66,10 +66,10 @@ class authValidation {
                 .messages({
                     "string.empty": "Email is required",
                     "string.email": "Please provide a valid email address",
-                    "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
+                    "string.pattern.base": "Email must contain only letters digits and periods before",
                 }),
             password: Joi.string().required().messages({
-                "string.empty": "Password_is_required",
+                "string.empty": "Password is required",
             }),
         });
     }

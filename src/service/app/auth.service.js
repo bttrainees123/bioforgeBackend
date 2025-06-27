@@ -3,7 +3,6 @@ const userModel = require("../../model/user.model")
 const otpModel = require("../../model/otp.model")
 const sendEmail = require("../../helper/sendVerificationEmail");
 const emailTemplateImage = require("../../config/template");
-const { request } = require("express");
 const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
@@ -22,8 +21,6 @@ authService.login = async (data) => {
     const user = data.toObject();
     user.token = await helper.generateTokken(user);
     delete user.password;
-    delete user.subscriptionExpiry;
-    delete user.subscription;
     delete user.isEmailVerified;
     delete user.status;
     delete user.is_deleted;
@@ -191,76 +188,81 @@ authService.updateprofile = async (request) => {
     );
     return;
 };
+authService.getAll = async(request)=>{
+    const userId = request?.query?._id
+    console.log("user data ",userId)
+    return await userModel.aggregate([
+        {
+            $match:{
+                is_deleted:'0',
+                status:'active',
+                _id:new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $project:{
+                username:1,
+                email:1,
+                bio:1,
+                profile_img:1,
+                links:1,
 
-authService.addLinks = async (request) => {
-    const userId = request.body?.userId;
-    const links = request.body?.links;
 
-    if (!userId || !Array.isArray(links) || links.length === 0) {
-        throw new Error("userId and a non-empty links array are required");
+            }
+        }
+    ])
+}
+authService.getTokenAll = async(request)=>{
+    const userId = request?.auth?._id
+    console.log("user data ",userId)
+    return await userModel.aggregate([
+        {
+            $match:{
+                is_deleted:'0',
+                status:'active',
+                _id:new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $project:{
+                username:1,
+                email:1,
+                bio:1,
+                profile_img:1,
+                links:1,
+
+
+            }
+        }
+    ])
+}
+authService.updateTheme = async (request) => {
+    const { userId, themeType, fontFamily, is_colorImage } = request.body;
+    if (!userId) {
+        throw new Error("userId is required");
     }
-    const user = await userModel.findOne({ _id: new mongoose.Types.ObjectId(userId), is_deleted: "0" });
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new Error("Invalid userId");
+    }
+    const user = await userModel.findOne({ _id: userId, is_deleted: "0" });
     if (!user) {
         throw new Error("User not found");
     }
-    user.links.push(...links);
+    if (!user.theme) user.theme = {};
+
+    if (themeType) {
+        if (!["color", "img"].includes(themeType)) {
+            throw new Error("themeType must be 'color' or 'img'");
+        }
+        user.theme.themeType = themeType;
+    }
+    if (fontFamily) {
+        user.theme.fontFamily = fontFamily;
+    }
+    if (typeof is_colorImage !== "undefined") {
+        user.theme.is_colorImage = is_colorImage;
+    }
     await user.save();
-    return user;
+    return user.theme;
 };
-authService.updateLink = async (request) => {
-  const { userId, linkId, linkTitle, linkUrl, linkLogo } = request.body;
-
-  // Validate inputs
-  if (!userId || !linkId || !linkTitle || !linkUrl || !linkLogo) {
-    throw new Error("userId, linkId, and all link fields are required");
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(linkId)) {
-    throw new Error("Invalid userId or linkId format");
-  }
-
-  const user = await userModel.findOne({ _id: userId, is_deleted: "0" });
-  if (!user) throw new Error("User not found");
-
-  // Find the link by its _id
-  const link = user.links.id(linkId);
-  if (!link) throw new Error("Link not found");
-
-  // Update link fields
-  link.linkTitle = linkTitle;
-  link.linkUrl = linkUrl;
-  link.linkLogo = linkLogo;
-
-  await user.save();
-  return link; // return the updated link only
-};
-authService.updateTheme = async (request) => {
-  const { userId, color, image } = request.body;
-
-  if (!userId) {
-    throw new Error("userId is required");
-  }
-
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw new Error("Invalid userId");
-  }
-
-  const user = await userModel.findOne({ _id: userId, is_deleted: "0" });
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  // Update theme fields if provided
-  if (Array.isArray(color)) {
-    user.theme.color = color;
-  }
-
-  if (image) {
-    user.theme.image = image;
-  }
-
-  await user.save();
-  return user.theme;
-};
-
 module.exports = authService
