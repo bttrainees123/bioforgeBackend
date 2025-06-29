@@ -188,33 +188,38 @@ authService.updateprofile = async (request) => {
     );
     return;
 };
-authService.getAll = async(request)=>{
-    const userId = request?.query?._id
-    console.log("user data ",userId)
+authService.getAll = async (request) => {
+    const userId = request?.query?._id;
+
     return await userModel.aggregate([
         {
-            $match:{
-                is_deleted:'0',
-                status:'active',
-                _id:new mongoose.Types.ObjectId(userId)
+            $match: {
+                is_deleted: '0',
+                status: 'active',
+                _id: new mongoose.Types.ObjectId(userId)
             }
         },
         {
-            $project:{
-                username:1,
-                email:1,
-                bio:1,
-                profile_img:1,
-                links:1,
-
-
+            $project: {
+                username: 1,
+                email: 1,
+                bio: 1,
+                profile_img: 1,
+                links: {
+                    $filter: {
+                        input: "$links",
+                        as: "link",
+                        cond: { $eq: ["$$link.status", "active"] }
+                    }
+                }
             }
         }
-    ])
-}
-authService.getTokenAll = async(request)=>{
-    const userId = request?.auth?._id
-    console.log("user data ",userId)
+    ]);
+};
+
+authService.getTokenAll = async (request) => {
+    const userId = request?.auth?._id;
+    console.log("user data ", userId);
     return await userModel.aggregate([
         {
             $match:{
@@ -229,7 +234,13 @@ authService.getTokenAll = async(request)=>{
                 email:1,
                 bio:1,
                 profile_img:1,
-                links:1,
+                links: {
+                    $filter: {
+                        input: "$links",
+                        as: "link",
+                        cond: { $eq: ["$$link.status", "active"] }
+                    }
+                }
 
 
             }

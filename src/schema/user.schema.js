@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String
     },
     email: {
-        type: String,
+        type: String
     },
     password: {
-        type: String,
+        type: String
     },
     type: {
         type: String,
@@ -15,11 +16,11 @@ const userSchema = new mongoose.Schema({
         default: "user"
     },
     bio: {
-        type: String,
+        type: String
     },
     profile_img: {
         type: String,
-        default: "d8.webp" 
+        default: "d8.webp"
     },
     status: {
         type: String,
@@ -29,41 +30,67 @@ const userSchema = new mongoose.Schema({
     links: [{
         linkTitle: {
             type: String,
-            required: true,
+            required: true
         },
         linkUrl: {
             type: String,
-            required: true,
+            required: true
         },
         linkLogo: {
             type: String,
-            required: true,
+            required: true
         },
-        is_index:{
-            type:Number
+        is_index: {
+            type: Number,
+            default: 0
+        },
+        status: {
+            type: String,
+            enum: ["active", "inactive"],
+            default: "active"
         }
     }],
     theme: {
         themeType: {
             type: String,
-            enum: ["color", "img"],
+            enum: ["color", "img"]
         },
         fontFamily: {
             type: String
         },
         is_colorImage: {
-            type: String,
+            type: String
         }
     },
     is_deleted: {
         type: String,
         enum: ["0", "1"],
         default: "0"
-    },
+    }
 }, {
     timestamps: true,
-    toJSON: { getters: true },
-    toObject: { getters: true }
+    toJSON: {
+        virtuals: false,
+        transform: function (doc, ret) {
+            if (ret.links && Array.isArray(ret.links)) {
+                ret.links.forEach(link => {
+                    delete link.id;
+                });
+            }
+            return ret;
+        }
+    },
+    toObject: {
+        virtuals: false,
+        transform: function (doc, ret) {
+            if (ret.links && Array.isArray(ret.links)) {
+                ret.links.forEach(link => {
+                    delete link.id;
+                });
+            }
+            return ret;
+        }
+    }
 });
-module.exports = userSchema;
 
+module.exports = userSchema;

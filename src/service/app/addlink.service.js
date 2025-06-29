@@ -2,7 +2,7 @@ const helper = require("../../helper/helper");
 const userModel = require("../../model/user.model");
 const mongoose = require("mongoose");
 
-const linkService ={}
+const linkService = {}
 
 linkService.addLinks = async (request) => {
     const userId = request.auth._id
@@ -26,8 +26,35 @@ linkService.addLinks = async (request) => {
     await user.save();
     return user;
 };
+linkService.addUserLinks = async (userId, links) => {
+    const user = await userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+        is_deleted: "0"
+    });
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    if (!Array.isArray(user.links)) {
+        user.links = [];
+    }
+
+    const currentLength = user.links.length;
+
+    const formattedLinks = links.map((link, index) => ({
+        ...link,
+        is_index: currentLength + index,
+        status: "active"
+    }));
+
+    user.links.push(...formattedLinks);
+    await user.save();
+
+    return user;
+};
 linkService.updateLink = async (request) => {
-    const { userId, linkId, linkTitle, linkUrl, linkLogo,is_index } = request.body;
+    const { userId, linkId, linkTitle, linkUrl, linkLogo, is_index } = request.body;
     if (!userId || !linkId || !linkTitle || !linkUrl || !linkLogo) {
         throw new Error("userId, linkId, and all link fields are required");
     }
@@ -43,7 +70,31 @@ linkService.updateLink = async (request) => {
     link.linkLogo = linkLogo;
     link.is_index = is_index;
     await user.save();
-    return link; 
+    return link;
+};
+linkService.updateLinkById = async (userId, linkId, updateData) => {
+    const user = await userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+        is_deleted: "0"
+    });
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    const link = user.links.id(linkId);
+    if (!link) {
+        throw new Error("Link not found");
+    }
+
+    Object.keys(updateData).forEach(key => {
+        if (key in link) {
+            link[key] = updateData[key];
+        }
+    });
+
+    await user.save();
+    return link;
 };
 linkService.deleteLink = async (request) => {
     const linkId = request?.query?._id;
@@ -57,10 +108,29 @@ linkService.deleteLink = async (request) => {
         throw new Error("You are not authorized to delete this link");
     }
     const link = user.links.id(linkId);
-    console.log("-------link",link)
+    console.log("-------link", link)
     if (!link) throw new Error("Link not found");
     user.links.pull(linkId);
     await user.save();
     return { success: true };
 };
+linkService.deleteLinkById = async (userId, linkId) => {
+    const user = await userModel.findOne({
+        _id: new mongoose.Types.ObjectId(userId),
+        is_deleted: "0"
+    });
+
+    if (!user) throw new Error("User not found");
+
+    const link = user.links.id(linkId);
+    if (!link) throw new Error("Link not found");
+    user.links.pull(linkId);
+    user.links.forEach((link, index) => {
+        link.is_index = index;
+    });
+
+    await user.save();
+    return user.links;
+};
+
 module.exports = linkService

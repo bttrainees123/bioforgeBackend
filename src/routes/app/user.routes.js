@@ -19,8 +19,11 @@ userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
 userRouter.post('/logout', authController.logout);
 //add-link
 userRouter.post('/add-multiple', middleWare,linkController.addLinks);
+userRouter.post('/addUserLinks-multiple', middleWare,linkController.addUserLinks);
 userRouter.post('/add-updateLink', linkController.updateLink);
+userRouter.post("/add/:userId/link/update",middleWare, linkController.updateLinkById);
 userRouter.post('/deleteLink',middleWare, linkController.deleteLink);
+userRouter.delete("/user/:userId/link/delete", middleWare, linkController.deleteLinkById);
 userRouter.post('/update-Theme', authController.updateTheme);
 
 userRouter.delete("/deleteUser", adminMiddleWare, userController.delete)
