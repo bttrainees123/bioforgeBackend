@@ -45,37 +45,21 @@ helper.getFilteredTopic = (language) => ({
 });
 
 helper.moveFileFromFolder = async (filename, targetFolder) => {
-    let desPath = '';
-    const uploadDirFile = path.join(__dirname, "../../public/tempUploads/" + filename);
-    const uploadfilePath = path.join(__dirname, "../../public/" + targetFolder);
-    if (fs.existsSync(uploadfilePath)) {
-        desPath = uploadfilePath;
-    } else {
-        desPath = path.join(__dirname, "../../public/" + targetFolder);
-        await mkdir(desPath, { recursive: true });
-    }
-    if (fs.existsSync(uploadDirFile)) {
-        const src = jetpack.cwd("public/tempUploads");
-        const dst = jetpack.cwd("public/" + targetFolder);
-        src.find({ matching: filename }).forEach(desPath => {
-            src.move(desPath, dst.path(desPath));
-        });
-    } else {
-        console.log(`File "${filename}" does not exist in tempUploads`);
-    }
-}
-helper.keys = [
-    "holy_sacrifice_of_the_mass", "the_real_presence", "words_of_christ", "holy_scriptures", "imitation_of_christ",
-    "reparation_of_sins", "communion", "all_souls", "psalms", "holy_family", "the_saints", "victim_souls", "holy_mass", "daily",
-    "rosary_jesus_servants_prayer", "essential", "via_crucis", "litanys"
-];
-helper.imagerequired=[
-    "the_saints","the_saints","victim_souls"
-]
-helper.imagesnotRequired = ["holy_sacrifice_of_the_mass", "the_real_presence", "words_of_christ", "holy_scriptures", "imitation_of_christ",
-    "reparation_of_sins", "communion", "all_souls", "psalms","holy_mass", "daily",
-]
-helper.twoSubcategory = ['communion', 'holy_mass']
-helper.threeSubcategory = ['daily', 'rosary_jesus_servants_prayer']
-helper.isSubscribe=["holy_sacrifice_of_the_mass","holy_scriptures","communion","holy_family","holy_mass","essential"]
+  if (!filename) return null;
+  const tempDir = path.join(__dirname, "../../public/tempUploads");
+  const targetDir = path.join(__dirname, "../../public", targetFolder);
+  const sourcePath = path.join(tempDir, filename);
+  if (!fs.existsSync(sourcePath)) {
+    console.log(`File not found: ${sourcePath}`);
+    return null;
+  }
+  const alreadyRenamed = /^\d{13}___/.test(filename);
+  const newFilename = alreadyRenamed ? filename : `${Date.now()}___${filename}`;
+  const destinationPath = path.join(targetDir, newFilename);
+  if (!fs.existsSync(targetDir)) {
+    await mkdir(targetDir, { recursive: true });
+  }
+  fs.renameSync(sourcePath, destinationPath);
+  return newFilename;
+};
 module.exports = helper
