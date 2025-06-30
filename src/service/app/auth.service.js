@@ -189,34 +189,84 @@ authService.updateprofile = async (request) => {
     return;
 };
 authService.getAll = async (request) => {
-    const userId = request?.query?._id;
-
+     const userId = request?.query?._id;
     return await userModel.aggregate([
         {
             $match: {
-                is_deleted: '0',
+                _id: new mongoose.Types.ObjectId(userId),
                 status: 'active',
-                _id: new mongoose.Types.ObjectId(userId)
+                is_deleted: '0'
+            }
+        },
+        {
+            $unwind: {
+                path: "$links",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $lookup: {
+                from: "links",
+                localField: "links.linkId",
+                foreignField: "_id",
+                as: "linkDetails"
+            }
+        },
+        {
+            $unwind: {
+                path: "$linkDetails",
+                preserveNullAndEmptyArrays: true
+            }
+        },
+        {
+            $match: {
+                "linkDetails.status": "active"
+            }
+        },
+        {
+            $addFields: {
+                "links.linkInfo": {
+                    linkTitle: "$linkDetails.linkTitle",
+                    linkUrl: "$linkDetails.linkUrl",
+                    linkLogo: "$linkDetails.linkLogo",
+                    // type:"$linkDetails.type"
+                }
+            }
+        },
+        {
+            $sort: {
+                "links.is_index": 1
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                username: { $first: "$username" },
+                email: { $first: "$email" },
+                profile_img: { $first: "$profile_img" },
+                banner_img: { $first: "$banner_img" },
+                links: {
+                    $push: {
+                        linkId: "$links.linkId",
+                        is_index: "$links.is_index"
+                    }
+                },
+                linkInfo: { $push: "$links.linkInfo" }
             }
         },
         {
             $project: {
+                _id: 0,
                 username: 1,
                 email: 1,
-                bio: 1,
                 profile_img: 1,
-                links: {
-                    $filter: {
-                        input: "$links",
-                        as: "link",
-                        cond: { $eq: ["$$link.status", "active"] }
-                    }
-                }
+                banner_img:1,
+                links: 1,
+                linkInfo: 1
             }
         }
     ]);
 };
-
 authService.getTokenAll = async (request) => {
     const userId = request?.auth?._id;
     console.log("user data ", userId);

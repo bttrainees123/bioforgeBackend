@@ -19,6 +19,7 @@ app.use(cors({
   credentials: true               
 }));
 app.use("/images", express.static(path.join(__dirname, "../public/profile")));
+app.use("/images", express.static(path.join(__dirname, "../public/linkLogo")));
 app.use("/images", express.static(path.join(__dirname, "../public/tempUploads")));
 app.use("/images", express.static(path.join(__dirname, "../public/default")));
 app.use(express.json({ limit: "50mb" }));

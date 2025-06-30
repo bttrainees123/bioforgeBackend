@@ -65,14 +65,14 @@ class authController {
             if (validationError) return;
             const userData = await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i') }, { password: 0 });
             if (!userData) {
-                return responseHelper.Forbidden(response, "Email_not_exists", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, "Email not exists", null, statusCodes.OK);
             } else if (userData.is_deleted === '1') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_deleted", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is deleted", null, statusCodes.OK);
             } else if (userData.status === 'inactive') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_inactive_Please_contact_to_admin", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is inactive Please contact to admin", null, statusCodes.OK);
             }
             const data = await authService.sendOtp(userData, request?.body?.type);
-            return responseHelper.success(response, data?.otp + " " + "Otp_is_sent_to_your_register_email_please_verify_the_email", userData, statusCodes.OK);
+            return responseHelper.success(response, data?.otp + " " + "Otp is sent to your register email please verify the email", userData, statusCodes.OK);
         } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
@@ -85,26 +85,26 @@ class authController {
             if (validationError) return;
             const userData = await userModel.findOne({ _id: request.body.userId }, { password: 0 });
             if (!userData) {
-                return responseHelper.Forbidden(response, "User_does_not_exist", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, "User does not exist", null, statusCodes.OK);
             } else if (userData.is_deleted === '1') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_deleted", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is deleted", null, statusCodes.OK);
             } else if (userData.status === 'inactive') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_inactive_Please_contact_to_admin", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is inactive Please contact to admin", null, statusCodes.OK);
             }
             const otpData = await optModel.findOne({ userId: request?.body?.userId })
             if (!otpData) {
-                return responseHelper.BadRequest(response, "OTP_has_expired_Please_request_a_new_OTP", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "OTP has expired Please request a new OTP", null, statusCodes.OK);
             }
             else if (moment(otpData.createdAt).add(2, 'minutes').isBefore(moment())) {
-                return responseHelper.BadRequest(response, "OTP_has_expired_Please_request_a_new_OTP", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "OTP has expired Please request a new OTP", null, statusCodes.OK);
             }
             else if (otpData.otp !== request?.body?.otp) {
-                return responseHelper.BadRequest(response, "Incorrect_OTP_Please_enter_the_correct_OTP", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "Incorrect OTP Please enter the correct OTP", null, statusCodes.OK);
             }
             if (request?.body?.type === 'verify') {
                 await userModel.findByIdAndUpdate({ _id: request.body.userId }, { isEmailVerified: true });
             }
-            return responseHelper.success(response, "OTP_verification_successful", userData, statusCodes.OK);
+            return responseHelper.success(response, "OTP verification successful", null, statusCodes.OK);
         } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
@@ -117,14 +117,14 @@ class authController {
             if (validationError) return;
             const userData = await userModel.findOne({ _id: request.body.userId });
             if (!userData) {
-                return responseHelper.Forbidden(response, "User_does_not_exist", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, "User does not exist", null, statusCodes.OK);
             } else if (userData.is_deleted === '1') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_deleted", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is deleted", null, statusCodes.OK);
             } else if (userData.status === 'inactive') {
-                return responseHelper.Forbidden(response, userData?.name + " " + "your_account_is_inactive_Please_contact_to_admin", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, userData?.name + " " + "your account is inactive Please contact to admin", null, statusCodes.OK);
             }
             await authService.forgetPassword(request);
-            return responseHelper.success(response, "Password_Update_successfully", null, statusCodes.OK);
+            return responseHelper.success(response, "Password Update successfully", null, statusCodes.OK);
 
         } catch (error) {
             console.log(error);
@@ -139,13 +139,13 @@ class authController {
             if (validationError) return;
             const userPassword = await userModel.findOne({ _id: request?.auth?._id })
             if (!await helper.comparePassword(request?.body?.oldPassword, userPassword?.password)) {
-                return responseHelper.BadRequest(response, "Please_Enter_correct_old_password", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "Please Enter correct old password", null, statusCodes.OK);
             }
             if (request?.body?.oldPassword === request?.body?.newPassword) {
-                return responseHelper.BadRequest(response, "Look_like_you_enter_same_password", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "Look like you enter same password", null, statusCodes.OK);
             }
             await authService.changePassword(request);
-            return responseHelper.success(response, "Password_Update_successfully", null, statusCodes.OK);
+            return responseHelper.success(response, "Password Update successfully", null, statusCodes.OK);
         } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
@@ -158,10 +158,10 @@ class authController {
             if (validationError) return;
             const userPassword = await userModel.findOne({ _id: request?.auth?._id })
             if (!await helper.comparePassword(request?.body?.password, userPassword?.password)) {
-                return responseHelper.BadRequest(response, "Please_Enter_correct_password", null, statusCodes.OK);
+                return responseHelper.BadRequest(response, "Please Enter correct password", null, statusCodes.OK);
             }
             await authService.accountDelete(request);
-            return responseHelper.success(response, "Account_delete_successfully", null, statusCodes.OK);
+            return responseHelper.success(response, "Account delete successfully", null, statusCodes.OK);
         } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
@@ -204,8 +204,8 @@ class authController {
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
     }
-    logout = (req, response) => {
-        response.clearCookie('token');
+    logout = (request, response) => {
+        response.clearCookie('token', { httpOnly: true, secure: false, sameSite: 'lax' });
         return responseHelper.success(response, "Logged out successfully", null, statusCodes.OK);
     };
     updateTheme = async (request, response) => {

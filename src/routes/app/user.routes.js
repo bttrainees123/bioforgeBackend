@@ -1,33 +1,28 @@
 const express = require('express');
 const userRouter = express.Router();
-const authController=require("../../controller/app/auth.controller")
-const linkController=require("../../controller/app/addlink.controller")
-const userController = require("../../controller/Admin/user.controller")
-const adminMiddleWare = require("../../middleware/admin.middleware")
-const middleWare=require("../../middleware/user.middleware")
+const authController=require("../../controller/app/auth.controller");
+const linksController=require("../../controller/app/link.controller");
+const middleWare=require("../../middleware/user.middleware");
 
-userRouter.post("/register",authController.register) 
-userRouter.post("/login",authController.login)
-userRouter.post("/sendOtp",authController.sendOtp)
-userRouter.post("/verifyOtp",authController.verifyOpt)
-userRouter.post("/changePassword",middleWare,authController.changePassword)
-userRouter.post("/accountDelete",middleWare,authController.accountDelete)
-userRouter.post("/forgetPassword",authController.forgetPassword)
-userRouter.post("/updateProfile",authController.updateProfile);
+userRouter.post("/register",authController.register);
+userRouter.post("/login",authController.login);
+userRouter.post("/sendOtp",authController.sendOtp);
+userRouter.post("/verifyOtp",authController.verifyOpt);
+userRouter.post("/changePassword",middleWare,authController.changePassword);
+userRouter.post("/accountDelete",middleWare,authController.accountDelete);
+userRouter.post("/forgetPassword",authController.forgetPassword);
+userRouter.post("/updateProfile",middleWare,authController.updateProfile);
 userRouter.get("/getUserInfo",authController.getUserInfo);
 userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
 userRouter.post('/logout', authController.logout);
-//add-link
-userRouter.post('/add-multiple', middleWare,linkController.addLinks);
-userRouter.post('/addUserLinks-multiple', middleWare,linkController.addUserLinks);
-userRouter.post('/add-updateLink', linkController.updateLink);
-userRouter.post("/add/:userId/link/update",middleWare, linkController.updateLinkById);
-userRouter.post('/deleteLink',middleWare, linkController.deleteLink);
-userRouter.delete("/user/:userId/link/delete", middleWare, linkController.deleteLinkById);
+
+//links
+userRouter.post('/add-links', middleWare,linksController.add);
+userRouter.post("/link-update",middleWare, linksController.update);
+userRouter.get("/link-updateStatus",middleWare, linksController.updateStatus);
+userRouter.post("/link-delete",middleWare, linksController.delete);
+userRouter.get("/get-links",middleWare, linksController.getAll);
+
+//themes
 userRouter.post('/update-Theme', authController.updateTheme);
-
-userRouter.delete("/deleteUser", adminMiddleWare, userController.delete)
-userRouter.get("/getUser", adminMiddleWare, userController.getAll)
-userRouter.get("/statusUser", adminMiddleWare, userController.status)
-
 module.exports=userRouter

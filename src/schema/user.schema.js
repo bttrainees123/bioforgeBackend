@@ -22,33 +22,24 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: "d8.webp"
     },
+    banner_img: {
+        type: String,
+        default: "d2.webp"
+    },
     status: {
         type: String,
         enum: ["active", "inactive"],
         default: "active"
     },
     links: [{
-        linkTitle: {
-            type: String,
-            required: true
-        },
-        linkUrl: {
-            type: String,
-            required: true
-        },
-        linkLogo: {
-            type: String,
-            required: true
+        linkId:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'links'
         },
         is_index: {
             type: Number,
             default: 0
         },
-        status: {
-            type: String,
-            enum: ["active", "inactive"],
-            default: "active"
-        }
     }],
     theme: {
         themeType: {

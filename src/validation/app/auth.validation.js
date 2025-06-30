@@ -77,23 +77,23 @@ class authValidation {
      * Returns the login validation schema.
      * @returns {Joi.ObjectSchema}
      */
-    static sendOtp(t) {
+    static sendOtp() {
         return Joi.object({
             email: Joi.string()
                 .email({ tlds: { allow: false } })
                 .pattern(/^[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)
                 .required()
                 .messages({
-                    "string.empty": t("Email_is_required"),
-                    "string.email": t("Please_provide_a_valid_email_address"),
-                    "string.pattern.base": t("Email_must_contain_only_letters_digits_and_periods_before"),
+                    "string.empty": "Email is required",
+                    "string.email": "Please provide a valid email address",
+                    "string.pattern.base": "Email must contain only letters digits and periods before",
                 }),
             type: Joi.string()
-                .valid("forget", "verify")
+                .valid("forget")
                 .required()
                 .messages({
-                    "any.only": t("type_must_be_either_forget_or_forget"),
-                    "string.empty": t("type_is_required"),
+                    "any.only": "type must be either forget",
+                    "string.empty": "type is required",
                 }),
         });
     }
@@ -102,18 +102,18 @@ class authValidation {
      * @returns {Joi.ObjectSchema}
      */
 
-    static forgetPassword(t) {
+    static forgetPassword() {
         return Joi.object({
             userId: Joi.string()
                 .pattern(/^[a-fA-F0-9]{24}$/)
                 .required()
                 .messages({
-                    "string.empty": t("User_ID_is_required"),
-                    "string.pattern.base": t("Invalid_User_ID_format_Must_be_a_valid_MongoDB_ObjectId"),
+                    "string.empty": "User ID is required",
+                    "string.pattern.base": "Invalid User ID format Must be a valid MongoDB ObjectId",
                 }),
             password: Joi.string().min(6).required().messages({
-                "string.empty": t("Password_is_required"),
-                "string.min": t("Password_must_be_at_least_6_characters_long"),
+                "string.empty": "Password is required" ,
+                "string.min":  "Password must be at least 6 characters long" ,
             }),
         });
     }
@@ -122,54 +122,54 @@ class authValidation {
      * @returns {Joi.ObjectSchema}
      */
 
-    static verifyOpt(t) {
+    static verifyOpt() {
         return Joi.object({
             type: Joi.string()
-                .valid("forget", "verify")
+                .valid("forget")
                 .required()
                 .messages({
-                    "any.only": t("type_must_be_either_forget_or_forget"),
-                    "string.empty": t("type_is_required"),
+                    "any.only": "type must be either forget",
+                    "string.empty": "type is required",
                 }),
             userId: Joi.string()
                 .pattern(/^[a-fA-F0-9]{24}$/)
                 .required()
                 .messages({
-                    "string.empty": t("User_ID_is_required"),
-                    "string.pattern.base": t("Invalid_User_ID_format_Must_be_a_valid_MongoDB_ObjectId"),
+                    "string.empty": "User ID is required",
+                    "string.pattern.base": "Invalid User ID format Must bbe a valid MongoDB ObjectId",
                 }),
             otp: Joi.string()
                 .length(6)
                 .pattern(/^\d+$/)
                 .required()
                 .messages({
-                    "string.empty": t("OTP_is_required"),
-                    "string.length": t("OTP_must_be_exactly_6_digits"),
-                    "string.pattern.base": t("OTP_must_contain_only_digits"),
+                    "string.empty": "OTP is required",
+                    "string.length": "OTP must be exactly 6 digits",
+                    "string.pattern.base": "OTP must contain only digits",
                 }),
 
 
         });
     }
-    static changePassword(t) {
+    static changePassword() {
         return Joi.object({
             oldPassword: Joi.string().required().min(6).messages({
-                "string.empty": t("OldPassword_is_required"),
-                "string.min": t("Old_Password_must_be_at_least_6_characters_long"),
+                "string.empty": "OldPassword is required",
+                "string.min": "Old Password must be at least 6 characters long",
             }),
             newPassword: Joi.string().required().min(6)
                 .messages({
-                    "string.empty": t("NewPassword_is_required"),
-                    "string.min": t("New_Password_must_be_at_least_6_characters_long"),
+                    "string.empty": "NewPassword is required",
+                    "string.min": "New Password must be at least 6 characters long",
                 }),
 
 
         });
     }
-    static accountDelete(t) {
+    static accountDelete() {
         return Joi.object({
             password: Joi.string().required().messages({
-                "string.empty": t("Password_is_required"),
+                "string.empty": "Password is required",
             }),
 
 
@@ -202,8 +202,8 @@ class authValidation {
   * @returns {Object} - Validation result.
   */
 
-    static validateSendOtp(data, t) {
-        return authValidation.sendOtp(t).validate(data, { abortEarly: false });
+    static validateSendOtp(data) {
+        return authValidation.sendOtp().validate(data, { abortEarly: false });
     }
     /**
   * Validate user forget password data.
@@ -211,8 +211,8 @@ class authValidation {
   * @returns {Object} - Validation result.
   */
 
-    static validateForgetPassword(data, t) {
-        return authValidation.forgetPassword(t).validate(data, { abortEarly: false });
+    static validateForgetPassword(data) {
+        return authValidation.forgetPassword().validate(data, { abortEarly: false });
     }
     /**
   * Validate user forget password data.
@@ -220,8 +220,8 @@ class authValidation {
   * @returns {Object} - Validation result.
   */
 
-    static validateVerifyOpt(data, t) {
-        return authValidation.verifyOpt(t).validate(data, { abortEarly: false });
+    static validateVerifyOpt(data) {
+        return authValidation.verifyOpt().validate(data, { abortEarly: false });
     }
     /**
   * Validate user forget password data.
@@ -229,8 +229,8 @@ class authValidation {
   * @returns {Object} - Validation result.
   */
 
-    static validateChangePassword(data, t) {
-        return authValidation.changePassword(t).validate(data, { abortEarly: false });
+    static validateChangePassword(data) {
+        return authValidation.changePassword().validate(data, { abortEarly: false });
     }
     /**
   * Validate user forget password data.
@@ -238,8 +238,8 @@ class authValidation {
   * @returns {Object} - Validation result.
   */
 
-    static validateAccountDelete(data, t) {
-        return authValidation.accountDelete(t).validate(data, { abortEarly: false });
+    static validateAccountDelete(data) {
+        return authValidation.accountDelete().validate(data, { abortEarly: false });
     }
 }
 
