@@ -1,26 +1,51 @@
 const linkModel = require('../../model/link.model');
 const { default: mongoose } = require("mongoose");
-const userModel = require('../../model/user.model');
 const helper = require('../../helper/helper');
 const fs = require('fs');
 const path = require('path');
+const { type } = require('os');
 
 const linkService = {}
 
-linkService.add = async (request) => {
-  const userId = request.auth._id;
-  const body = request.body;
-  body.userId = userId;
-  if (body.linkLogo) {
-    const processed = await helper.moveFileFromFolder(body.linkLogo, "linkLogo");
-    if (!processed) {
-      throw new Error("Failed to process uploaded logo.");
+// Helper function to reorder indexes after deletion
+linkService.reorderIndexes = async (userId) => {
+    const links = await linkModel.find({
+        userId: userId,
+        status: 'active',
+        is_deleted: '0'
+    }).sort({ is_index: 1 });
+    
+    // Update indexes to be sequential (0, 1, 2, 3, ...)
+    for (let i = 0; i < links.length; i++) {
+        if (links[i].is_index !== i) {
+            await linkModel.findByIdAndUpdate(links[i]._id, { is_index: i });
+        }
     }
-    body.linkLogo = processed;
-  }
-  const created = await linkModel.create(body);
-  return created;
 };
+
+linkService.add = async (request) => {
+    const userId = request.auth._id;
+    const body = request.body;
+    body.userId = userId;
+    if (body.linkLogo) {
+        const processed = await helper.moveFileFromFolder(body.linkLogo, "linkLogo");
+        if (!processed) {
+            throw new Error("Failed to process uploaded logo.");
+        }
+        body.linkLogo = processed;
+    }
+        const count = await linkModel.countDocuments({
+        userId: userId,
+        status: 'active',
+        is_deleted: '0'
+    });
+    
+    body.is_index = count;
+    
+    const created = await linkModel.create(body);
+    return created;
+};
+
 
 linkService.update = async (request) => {
     const linkData = await linkModel.findOne({ _id: request?.body?._id });
@@ -72,12 +97,25 @@ linkService.updateStatus = async (request)=>{
         await linkModel.findByIdAndUpdate({_id:new mongoose.Types.ObjectId(request?.query?._id)},{status:'active'})
     } 
 }
+linkService.updateIndex = async (request) => {
+    // request.body.is_index = (request.body.is_index);
+    for(const item of request.body.items){
+        await linkModel.findByIdAndUpdate({_id:new mongoose.Types.ObjectId(item?._id)},{is_index:item.is_index});
+    }
+
+};
+
 linkService.get = async (request) => {
     const userId = request?.auth?._id;
-    return await linkModel.aggregate([
+    return await linkModel.aggregate([ 
         {
             $match: {
                 userId: new mongoose.Types.ObjectId(userId),
+            }
+        },{
+            $sort:{
+                updateAt:-1,
+                is_index:1,
             }
         },
         {
@@ -86,10 +124,13 @@ linkService.get = async (request) => {
                 linkUrl:1,
                 linkLogo:1,
                 type:1,
-                status:1
+                status:1,
+                is_index:1
             }
         }
     ]);
 }
 
 module.exports = linkService;
+
+//if type is social , linkLogo is not required ,but if type is is non_social then linkLogo is required
