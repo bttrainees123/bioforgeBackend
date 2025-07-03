@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3006;
 mongooseConnection();
 
 app.use(cors({
-  origin: ['http://192.168.0.96:5173','http://localhost:5173'], 
+  origin: '*', 
   credentials: true               
 }));
 app.use("/images", express.static(path.join(__dirname, "../public/profile")));

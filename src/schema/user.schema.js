@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     username: {
-        type: String
+        type: String,
+        unique: true
     },
     email: {
         type: String
@@ -31,7 +32,6 @@ const userSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
-   
     theme: {
         themeType: {
             type: String,

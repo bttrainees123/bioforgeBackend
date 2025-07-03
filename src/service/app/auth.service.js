@@ -340,6 +340,7 @@ authService.getAll = async (request) => {
                 bio:1,
                 profile_img:1,
                 banner_img:1,
+                theme:1,
                 social:1,
                 non_social:1,
                 

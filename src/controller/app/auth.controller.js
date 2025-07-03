@@ -17,7 +17,10 @@ class authController {
             if (await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i'), is_deleted: "0" })) {
                 return responseHelper.Forbidden(response, "Email already exists", null, statusCodes.OK);
             }
-            const data = await authService.register(request);
+            const userData = await userModel.findOne({ username: request.body.username, is_deleted: "0" })
+            if (userData) {
+                return responseHelper.Forbidden(response, "Username already exists", null, statusCodes.OK);
+            } const data = await authService.register(request);
             return responseHelper.success(response, data.username + " " + "is registered successfully", null, statusCodes.OK);
         } catch (error) {
             console.log(error);
@@ -50,7 +53,7 @@ class authController {
                 sameSite: 'lax',
                 maxAge: 24 * 60 * 60 * 1000
             });
-            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token }, statusCodes.OK);
+            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img }, statusCodes.OK);
 
 
         } catch (error) {
@@ -169,19 +172,14 @@ class authController {
     }
     updateProfile = async (request, response) => {
         try {
-        // const userId = String(request.auth._id);
-        //     console.log("===user",userId)
-
+            const _id = String(request.auth._id);
             const userData = await userModel.findOne({ _id: request?.body?._id, is_deleted: '0' });
-            //  console.log("====",userData._id )
-            // if(userData && String(userData.userId) === String(userId)){
-               
-            //     return responseHelper.Forbidden(response, `you are not authorize to update this profile `,null,statusCodes.OK)
-            // }
+            if (String(userData._id) !== _id) {
+                return responseHelper.Forbidden(response, "You are not authorized to update this review.", null, statusCodes.OK);
+            }
             if (!userData) {
                 return responseHelper.Forbidden(response, `user not found`, null, statusCodes.OK)
             }
-            
             const data = await authService.updateprofile(request);
             return responseHelper.success(response, `profile updated successfully`, data, statusCodes.OK)
         } catch (error) {

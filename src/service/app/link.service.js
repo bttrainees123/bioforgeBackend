@@ -107,29 +107,39 @@ linkService.updateIndex = async (request) => {
 
 linkService.get = async (request) => {
     const userId = request?.auth?._id;
-    return await linkModel.aggregate([ 
+    const type = request?.query?.type; 
+    
+    const TypeCondition = {
+        userId: new mongoose.Types.ObjectId(userId),
+    };
+    
+    if (type && ['social', 'non_social'].includes(type)) {
+        TypeCondition.type = type;
+    }
+    
+    return await linkModel.aggregate([
         {
-            $match: {
-                userId: new mongoose.Types.ObjectId(userId),
-            }
-        },{
-            $sort:{
-                updateAt:-1,
-                is_index:1,
+            $match: TypeCondition
+        },
+        {
+            $sort: {
+                updateAt: -1,
+                is_index: 1,
             }
         },
         {
-            $project:{
-                linkTitle:1,
-                linkUrl:1,
-                linkLogo:1,
-                type:1,
-                status:1,
-                is_index:1
+            $project: {
+                linkTitle: 1,
+                linkUrl: 1,
+                linkLogo: 1,
+                type: 1,
+                status: 1,
+                is_index: 1
             }
         }
     ]);
-}
+};
+
 
 module.exports = linkService;
 
