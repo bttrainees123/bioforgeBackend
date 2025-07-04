@@ -7,12 +7,12 @@ const connectDB = async () => {
     try {
         await mongoose.connect(`${url}${dbName}`);
         console.log("Mongodb is connected",url+dbName)
-        const alreadyExist = await userModel.findOne({email: "vanshkushwaha34@gmail.com",});
+        const alreadyExist = await userModel.findOne({email: "bioforge@gmail.com",});
         if (!alreadyExist) {
-            const hashedPassword = await helper.createPassword("Vansh@1234");
+            const hashedPassword = await helper.createPassword("bioforge");
             const admin = new userModel({
-                name: "Vansh Kushwaha",
-                email: "vanshkushwaha34@gmail.com",
+                username: "bioforge",
+                email: "bioforge@gmail.com",
                 password: hashedPassword,
                 type: "admin",
                 status: "active",

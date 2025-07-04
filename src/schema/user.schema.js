@@ -48,6 +48,18 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ["0", "1"],
         default: "0"
+    },inactiveReason: {
+        type: String,
+        enum: ['Multiple reports', 'Admin action', 'Violation', 'Other'],
+        default: null
+    },
+    inactivatedAt: {
+        type: Date,
+        default: null
+    },
+    reportCount: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true,

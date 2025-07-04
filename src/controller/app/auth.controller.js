@@ -43,9 +43,7 @@ class authController {
             if (!await helper.comparePassword(request?.body?.password, userData?.password)) {
                 return responseHelper.BadRequest(response, "Password is wrong", null, statusCodes.OK);
             }
-            else if (userData?.type === 'admin') {
-                return responseHelper.Forbidden(response, userData?.username + " " + "you are not admin", { isEmailVerified: false, userId: userData?._id }, statusCodes.OK,);
-            }
+            
             const data = await authService.login(userData);
             response.cookie('token', data.token, {
                 httpOnly: true,
@@ -53,7 +51,7 @@ class authController {
                 sameSite: 'lax',
                 maxAge: 24 * 60 * 60 * 1000
             });
-            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img }, statusCodes.OK);
+            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img ,type: data.type}, statusCodes.OK);
 
 
         } catch (error) {
@@ -205,6 +203,15 @@ class authController {
     getUserTokenInfo = async (request, response) => {
         try {
             const data = await authService.getTokenAll(request);
+            return responseHelper.success(response, `all data fetched`, data, statusCodes.OK)
+        } catch (error) {
+            console.log(error);
+            return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+    getAllUser = async (request, response) => {
+        try {
+            const data = await authService.getAllUser(request);
             return responseHelper.success(response, `all data fetched`, data, statusCodes.OK)
         } catch (error) {
             console.log(error);

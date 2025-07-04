@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
 const { type } = require("os");
+const { status } = require("../admin/user.service");
 const authService = {}
 authService.register = async (request) => {
     const hashpassword = await helper.createPassword(request.body.password)
@@ -379,6 +380,38 @@ authService.getTokenAll = async (request) => {
         }
     ])
 };
+authService.getAllUser = async (request) => {
+     const search = request?.query?.search || "";
+    const page = Number(request?.query?.page) || 1;
+    const limit = Number(request?.query?.limit) || 10;
+    const skip = (page - 1) * limit;
+    const data = await userModel.aggregate([
+        {
+            $match: {
+                status: 'active',
+                is_deleted: '0'
+            }
+        },
+        {
+            $project:{
+                _id:1,
+                username:1,
+                email:1,
+                bio:1,
+                profile_img:1,
+                banner_img:1,
+                status :1
+            }
+        },
+                    
+      helper.applyPagination(skip, limit),
+    ])
+    const response = {
+        getData: data ? data[0].paginatedResults : {},
+        count: data[0].totalCount[0] ? data[0].totalCount[0].total : 0
+    };
+    return response    
+}
 authService.updateTheme = async (request) => {
     const { userId, themeType, fontFamily, is_colorImage } = request.body;
     if (!userId) {

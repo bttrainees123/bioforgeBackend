@@ -38,25 +38,18 @@ const linkSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
-    visits: [
+     clicks: [
         {
-            userId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'users',
-            },
-            ipAddress: {
-                type: String,
-            },
-            timestamp: {
-                type: Date,
-                default: Date.now
-            },
-            count: {
-                type: Number,
-                default: 0
-            }
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User',},
+            ipAddress: { type: String, },
+            count:{ type: Number, default: 1 },
+            lastClickedAt: { type: Date, default: Date.now }
         }
-    ]
+    ],
+    clickCount: {
+        type: Number,
+        default: 0
+    }
 
 }, {
     timestamps: true,

@@ -3,6 +3,7 @@ const userRouter = express.Router();
 const authController=require("../../controller/app/auth.controller");
 const linksController=require("../../controller/app/link.controller");
 const middleWare=require("../../middleware/user.middleware");
+const reportController = require('../../controller/app/report.controller');
 
 userRouter.post("/register",authController.register);
 userRouter.post("/login",authController.login);
@@ -14,6 +15,7 @@ userRouter.post("/forgetPassword",authController.forgetPassword);
 userRouter.post("/updateProfile",middleWare,authController.updateProfile);
 userRouter.get("/getUserInfo",authController.getUserInfo);
 userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
+userRouter.get("/getAllUser",authController.getAllUser);
 userRouter.post('/logout', authController.logout);
 
 //links
@@ -24,6 +26,11 @@ userRouter.post("/update-index",middleWare, linksController.updateIndex);
 userRouter.post("/link-delete",middleWare, linksController.delete);
 userRouter.get("/get-links",middleWare, linksController.getAll);
 
-//themes
-userRouter.post('/update-Theme', authController.updateTheme);
+//links record click
+userRouter.post('/link/click/:linkId',linksController.recordClick);
+
+//report user
+userRouter.post('/report',middleWare,reportController.add);
+
+
 module.exports=userRouter
