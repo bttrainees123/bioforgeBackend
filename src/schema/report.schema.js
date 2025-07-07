@@ -5,15 +5,11 @@ const reportSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'users',
     },
+    reportedByUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', },
     message: {
         type: String,
         required: true
     },
-    reportCount: [
-        {
-            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'users', },
-        }
-    ],
     createdAt: {
         type: Date,
         default: Date.now

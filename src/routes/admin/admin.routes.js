@@ -12,7 +12,7 @@ adminRouter.post("/addUser", adminMiddleWare, userController.add);
 adminRouter.post("/updateUser", adminMiddleWare, userController.update);
 adminRouter.delete("/deleteUser", adminMiddleWare, userController.delete);
 adminRouter.get("/getUser", adminMiddleWare, userController.getAll);
-adminRouter.get("/statusUser", adminMiddleWare, userController.status);
+adminRouter.get("/userStatusUpdate", adminMiddleWare, userController.status);
 
 // Get all reported users
 adminRouter.get('/reports', adminMiddleWare, reportController.getReports);

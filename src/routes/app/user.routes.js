@@ -31,6 +31,4 @@ userRouter.post('/link/click/:linkId',linksController.recordClick);
 
 //report user
 userRouter.post('/report',middleWare,reportController.add);
-
-
 module.exports=userRouter

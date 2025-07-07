@@ -441,4 +441,5 @@ authService.updateTheme = async (request) => {
     await user.save();
     return user.theme;
 };
+
 module.exports = authService

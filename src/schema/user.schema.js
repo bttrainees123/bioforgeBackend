@@ -60,7 +60,12 @@ const userSchema = new mongoose.Schema({
     reportCount: {
         type: Number,
         default: 0
-    }
+    },
+    reportStatus:{
+        type:String,
+        default:'false',
+        enum:['true','false']
+    },
 }, {
     timestamps: true,
     toJSON: {

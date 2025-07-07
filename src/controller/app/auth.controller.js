@@ -39,19 +39,21 @@ class authController {
                 return responseHelper.Forbidden(response, userData?.username + " " + "your account is deleted", null, statusCodes.OK);
             } else if (userData.status === 'inactive') {
                 return responseHelper.Forbidden(response, userData?.username + " " + "your account is inactive Please contact to admin", null, statusCodes.OK);
+            } else if (userData.reportStatus === 'true') {
+                return responseHelper.Forbidden(response, userData?.username + " " + "your account is blocked ,due to maximum report by another user,pleases contact to admin", null, statusCodes.OK);
             }
             if (!await helper.comparePassword(request?.body?.password, userData?.password)) {
                 return responseHelper.BadRequest(response, "Password is wrong", null, statusCodes.OK);
             }
-            
+
             const data = await authService.login(userData);
-            response.cookie('token', data.token, {
-                httpOnly: true,
-                secure: false,
-                sameSite: 'lax',
-                maxAge: 24 * 60 * 60 * 1000
-            });
-            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img ,type: data.type}, statusCodes.OK);
+            // response.cookie('token', data.token, {
+            //     httpOnly: true,
+            //     secure: false,
+            //     sameSite: 'lax',
+            //     maxAge: 24 * 60 * 60 * 1000
+            // });
+            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img, type: data.type }, statusCodes.OK);
 
 
         } catch (error) {
@@ -178,6 +180,12 @@ class authController {
             if (!userData) {
                 return responseHelper.Forbidden(response, `user not found`, null, statusCodes.OK)
             }
+            // if(await userModel.findOne({_id: { $ne: new mongoose.Types.ObjectId(request?.body?._id) },username:request.body.username})){
+            //     return responseHelper.BadRequest(response, "username already exist", null, statusCodes.OK);
+            // }
+            // if(await userModel.findOne({_id: { $ne: new mongoose.Types.ObjectId(request?.body?._id) },email:request.body.email})){
+            //     return responseHelper.BadRequest(response, "email already exist", null, statusCodes.OK);
+            // }
             const data = await authService.updateprofile(request);
             return responseHelper.success(response, `profile updated successfully`, data, statusCodes.OK)
         } catch (error) {
@@ -231,7 +239,6 @@ class authController {
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
     };
-
 }
 
 module.exports = new authController();

@@ -12,6 +12,9 @@ class userController {
             const validationError = responseHelper.validatIonError(response, error);
             if (validationError) return;
             if (await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i'), is_deleted: "0" })) {
+                if(await userModel.findOne({username:request.body.username,is_deleted:"0"})){
+                    return responseHelper.Forbidden(response, "Username already exists", null, statusCodes.OK);
+                }
                 return responseHelper.Forbidden(response, "Email already exists", null, statusCodes.OK);
             }
             await userService.add(request)
@@ -43,6 +46,9 @@ class userController {
                 return responseHelper.Forbidden(response, "User not exists", null, statusCodes.OK);
             } else if (userInfo.is_deleted === '1') {
                 return responseHelper.Forbidden(response, "User account is deleted", null, statusCodes.OK);
+            }
+            if(await userModel.findOne({  _id: { $ne: new mongoose.Types.ObjectId(request?.body?._id) }, username: request.body.username, is_deleted: "0" })) {
+                return responseHelper.Forbidden(response, "Username already exists", null, statusCodes.OK);
             }
             if (await userModel.findOne({ _id: { $ne: new mongoose.Types.ObjectId(request?.body?._id) }, email: request.body.email, is_deleted: "0" })) {
                 return responseHelper.Forbidden(response, "Email already exists", null, statusCodes.OK);
