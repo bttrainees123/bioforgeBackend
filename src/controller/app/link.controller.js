@@ -53,7 +53,7 @@ class linksController {
     getAll = async (request, response) => {
         try {
             const data = await linkService.get(request)
-            return responseHelper.success(response, `All links fetched successfully`, data, statusCodes.OK)
+            return responseHelper.success(response, `All the links fetched successfully`, data, statusCodes.OK)
         } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
