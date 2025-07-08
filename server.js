@@ -4,10 +4,10 @@ const express = require('express');
 const path = require("path")
 const cors = require("cors")
 const fileUpload = require("express-fileupload");
-const userRouter = require("./routes/app/user.routes")
-const adminRouter = require("./routes/admin/admin.routes")
-const imageRouter = require("./routes/upload/upload.route")
-const mongooseConnection = require("./config/db");
+const userRouter = require("./src/routes/app/user.routes")
+const adminRouter = require("./src/routes/admin/admin.routes")
+const imageRouter = require("./src/routes/upload/upload.route")
+const mongooseConnection = require("./src/config/db");
 const app = express();
 const PORT = process.env.PORT || 3006;
 mongooseConnection();
