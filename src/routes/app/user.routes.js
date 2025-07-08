@@ -1,9 +1,9 @@
 const express = require('express');
 const userRouter = express.Router();
-const authController=require("../../../src/controller/app/auth.controller");
-const linksController=require("../../../src/controller/app/link.controller");
-const middleWare=require("../../../src/middleware/user.middleware");
-const reportController = require('../../../src/controller/app/report.controller');
+const authController=require("../../controller/app/auth.controller");
+const linksController=require("../../controller/app/link.controller");
+const middleWare=require("../../middleware/user.middleware");
+const reportController = require('../../controller/app/report.controller');
 
 userRouter.post("/register",authController.register);
 userRouter.post("/login",authController.login);
@@ -31,4 +31,5 @@ userRouter.post('/link/click/:linkId',linksController.recordClick);
 
 //report user
 userRouter.post('/report',middleWare,reportController.add);
+
 module.exports=userRouter
