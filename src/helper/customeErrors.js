@@ -33,7 +33,7 @@ class ForbiddenError extends CustomError {
 
 class NotFoundError extends CustomError {
     constructor(message = 'Resource not found') {
-        super(message, 404);
+        super(message, 200);
     }
 }
 
@@ -73,7 +73,6 @@ class ServiceUnavailableError extends CustomError {
     }
 }
 
-// Database specific errors
 class DatabaseError extends CustomError {
     constructor(message = 'Database error') {
         super(message, 500);
@@ -92,7 +91,6 @@ class CastError extends CustomError {
     }
 }
 
-// Authentication specific errors
 class TokenExpiredError extends CustomError {
     constructor(message = 'Token has expired') {
         super(message, 401);
@@ -117,7 +115,6 @@ class AccountDeletedError extends CustomError {
     }
 }
 
-// File upload specific errors
 class FileUploadError extends CustomError {
     constructor(message = 'File upload failed') {
         super(message, 400);
@@ -136,14 +133,12 @@ class FileTypeError extends CustomError {
     }
 }
 
-// Rate limiting errors
 class RateLimitError extends CustomError {
     constructor(message = 'Rate limit exceeded') {
         super(message, 429);
     }
 }
 
-// Payment specific errors
 class PaymentError extends CustomError {
     constructor(message = 'Payment failed') {
         super(message, 402);
@@ -156,7 +151,6 @@ class InsufficientFundsError extends CustomError {
     }
 }
 
-// Network errors
 class NetworkError extends CustomError {
     constructor(message = 'Network error') {
         super(message, 503);
@@ -169,7 +163,6 @@ class TimeoutError extends CustomError {
     }
 }
 
-// Business logic errors
 class BusinessLogicError extends CustomError {
     constructor(message = 'Business logic error') {
         super(message, 422);
@@ -188,11 +181,10 @@ class ResourceLimitError extends CustomError {
     }
 }
 
-// Export all error classes
 module.exports = {
     // Base error
     CustomError,
-    
+
     // HTTP status based errors
     ValidationError,
     BadRequestError,
@@ -205,34 +197,34 @@ module.exports = {
     InternalServerError,
     NotImplementedError,
     ServiceUnavailableError,
-    
+
     // Database errors
     DatabaseError,
     DuplicateKeyError,
     CastError,
-    
+
     // Authentication errors
     TokenExpiredError,
     InvalidTokenError,
     AccountBlockedError,
     AccountDeletedError,
-    
+
     // File upload errors
     FileUploadError,
     FileSizeError,
     FileTypeError,
-    
+
     // Rate limiting
     RateLimitError,
-    
+
     // Payment errors
     PaymentError,
     InsufficientFundsError,
-    
+
     // Network errors
     NetworkError,
     TimeoutError,
-    
+
     // Business logic errors
     BusinessLogicError,
     PermissionDeniedError,

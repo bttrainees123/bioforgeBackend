@@ -53,7 +53,17 @@ class authController {
             //     sameSite: 'lax',
             //     maxAge: 24 * 60 * 60 * 1000
             // });
-            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, token: data.token, profile_img: data.profile_img, type: data.type }, statusCodes.OK);
+            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, 
+                token: data.token,
+                profile_img: data.profile_img, 
+                type: data.type, 
+                username :data.username,
+                banner_img:data.banner_img,
+                email:data.email,
+                bio:data.bio,
+                theme:data.theme,
+
+            }, statusCodes.OK);
 
 
         } catch (error) {

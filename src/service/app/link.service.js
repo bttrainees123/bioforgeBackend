@@ -7,6 +7,12 @@ const { type } = require('os');
 const addLinksValidation = require('../../validation/app/addlink.validation');
 const { time } = require('console');
 const userModel = require('../../model/user.model');
+const { 
+    NotFoundError, 
+    BadRequestError, 
+    ConflictError,
+    ValidationError,ForbiddenError
+} = require('../../helper/customeErrors');
 
 const linkService = {}
 
@@ -99,8 +105,8 @@ linkService.updateStatus = async (request) => {
 }
 linkService.updateIndex = async (request) => {
     // request.body.is_index = (request.body.is_index);
-    for (const item of request.body.items) {
-        await linkModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(item?._id) }, { is_index: item.is_index });
+    for(const item of request.body.items){
+        await linkModel.findByIdAndUpdate({_id:new mongoose.Types.ObjectId(item?._id)},{is_index:item.is_index});
     }
 
 };
@@ -120,12 +126,7 @@ linkService.get = async (request) => {
         {
             $match: TypeCondition
         },
-        {
-            $sort: {
-                updateAt: -1,
-                is_index: 1,
-            }
-        },
+       
         {
             $unwind: {
                 path: "$clicks",
@@ -221,18 +222,33 @@ linkService.get = async (request) => {
                     }
                 }
             }
-        }
+        },
+         {
+            $sort: {
+                updateAt: 1,
+                is_index: 1,
+            }
+        },
     ]);
 };
+
 linkService.recordClickService = async ({ linkId, userId, ipAddress }) => {
     const link = await linkModel.findById(linkId);
-    if (!link) throw new Error('Link not found');
+    if (!link) {
+        throw new ForbiddenError('Link not found')
+    };
+      if (userId && String(userId) === String(link.userId)) {
+     
+        return { clickCount: link.clickCount };
+    }
 
     const now = new Date();
 
     if (userId) {
         const user = await userModel.findById(userId);
-        if (!user) throw new Error('User not found');
+        if (!user) {
+            throw new ForbiddenError('User not found')
+        };
 
         const click = link.clicks.find(c => String(c.userId) === String(userId));
 
@@ -267,7 +283,7 @@ linkService.recordClickService = async ({ linkId, userId, ipAddress }) => {
             });
         }
     } else {
-        throw new Error('Neither userId nor ipAddress provided');
+        throw new ForbiddenError('Neither userId nor ipAddress provided');
     }
 
     link.clickCount += 1;

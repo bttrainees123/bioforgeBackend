@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema({
         fontFamily: {
             type: String
         },
+        fontColor: {
+            type: String
+        },
         is_colorImage: {
             type: String
         }
