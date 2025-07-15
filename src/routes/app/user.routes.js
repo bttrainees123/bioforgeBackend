@@ -4,6 +4,7 @@ const authController=require("../../controller/app/auth.controller");
 const linksController=require("../../controller/app/link.controller");
 const middleWare=require("../../middleware/user.middleware");
 const reportController = require('../../controller/app/report.controller');
+const templateController = require('../../controller/app/template.controller');
 
 userRouter.post("/register",authController.register);
 userRouter.post("/login",authController.login);
@@ -31,5 +32,11 @@ userRouter.post('/link/click/:linkId',linksController.recordClick);
 
 //report user
 userRouter.post('/report',middleWare,reportController.add);
+
+//template 
+userRouter.post('/add-template',middleWare,templateController.add);
+userRouter.post('/update-template',middleWare,templateController.update);
+userRouter.delete('/delete-template',middleWare,templateController.delete);
+userRouter.get('/getAll-template',middleWare,templateController.getAll);
 
 module.exports=userRouter

@@ -231,7 +231,6 @@ linkService.get = async (request) => {
         },
     ]);
 };
-
 linkService.recordClickService = async ({ linkId, userId, ipAddress }) => {
     const link = await linkModel.findById(linkId);
     if (!link) {

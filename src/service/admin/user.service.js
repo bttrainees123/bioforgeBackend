@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose")
 const helper = require("../../helper/helper")
 const userModel = require("../../model/user.model")
+const templateModel = require("../../model/template.model")
 const userService = {}
 
 userService.add = async (request) => {
@@ -60,6 +61,13 @@ userService.status = async (request) => {
     } else {
         await userModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(request?.query?._id) }, { status: "active" })
     }
-
+}
+userService.templateStatus = async (request) => {
+    const templateInfo = await templateModel.findOne({ _id: new mongoose.Types.ObjectId(request?.query?._id) })
+    if (templateInfo.status === 'active') {
+        await templateModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(request?.query?._id) }, { status: "inactive" })
+    } else {
+        await templateModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(request?.query?._id) }, { status: "active" })
+    }
 }
 module.exports = userService

@@ -16,6 +16,9 @@ adminRouter.delete("/deleteUser", adminMiddleWare, userController.delete);
 adminRouter.get("/getUser", adminMiddleWare, userController.getAll);
 adminRouter.get("/userStatusUpdate", adminMiddleWare, userController.status);
 
+//change user template status 
+adminRouter.post("/changeTemplateStatus", adminMiddleWare, userController.templateStatus);
+
 // Get all reported users
 adminRouter.get('/reports', adminMiddleWare, reportController.getReports);
 

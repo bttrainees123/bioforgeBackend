@@ -21,7 +21,6 @@ const linkSchema = new mongoose.Schema({
         type: String,
         enum: ['social', 'non_social'],
         default: 'social'
-
     },
      is_index: {
             type: Number,
