@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const templateSchema = new mongoose.Schema({
-    // userId: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    // },
     templateName: {
+        type: String,
+    },
+    templateContent: {
         type: String,
     },
     status: {

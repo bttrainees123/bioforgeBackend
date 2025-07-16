@@ -18,6 +18,7 @@ userRouter.get("/getUserInfo",authController.getUserInfo);
 userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
 userRouter.get("/getAllUser",authController.getAllUser);
 userRouter.post('/logout', authController.logout);
+userRouter.get('/getTemplate', middleWare, authController.getTemplate);
 
 //links
 userRouter.post('/add-links', middleWare,linksController.add);

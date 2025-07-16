@@ -53,15 +53,16 @@ class authController {
             //     sameSite: 'lax',
             //     maxAge: 24 * 60 * 60 * 1000
             // });
-            return responseHelper.success(response, data.username + " is login successfully", { id: data._id, 
+            return responseHelper.success(response, data.username + " is login successfully", {
+                id: data._id,
                 token: data.token,
-                profile_img: data.profile_img, 
-                type: data.type, 
-                username :data.username,
-                banner_img:data.banner_img,
-                email:data.email,
-                bio:data.bio,
-                theme:data.theme,
+                profile_img: data.profile_img,
+                type: data.type,
+                username: data.username,
+                banner_img: data.banner_img,
+                email: data.email,
+                bio: data.bio,
+                theme: data.theme,
 
             }, statusCodes.OK);
 
@@ -249,7 +250,29 @@ class authController {
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
     };
-}
 
+
+    getTemplate = async (request, response) => {
+        try {
+            const { templateId } = request.query;
+            const userId = request.auth._id;
+            if (!templateId) {
+                return responseHelper.BadRequest(response, "Please Enter templateId", null, statusCodes.OK);
+            }
+            const result = await authService.getTemplate(templateId, userId);
+            if (!result.template) {
+                return responseHelper.BadRequest(response, "Template not found", null, statusCodes.OK);
+            }
+            if (!result.updatedUser) {
+                return responseHelper.BadRequest(response, "User not found", null, statusCodes.OK);
+            }
+            return responseHelper.success(response, "Template fetched successfully", null, statusCodes.OK);
+        } catch (error) {
+            console.error(error);
+            return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+}
 module.exports = new authController();
 

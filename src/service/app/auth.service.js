@@ -8,6 +8,8 @@ const path = require("path");
 const mongoose = require("mongoose");
 const { type } = require("os");
 const { status } = require("../admin/user.service");
+const templateModel = require("../../model/template.model");
+
 const authService = {}
 authService.register = async (request) => {
     const hashpassword = await helper.createPassword(request.body.password)
@@ -241,7 +243,7 @@ authService.updateprofile = async (request) => {
     return;
 };
 authService.getAll = async (request) => {
-     const userId = request?.query?._id;
+    const userId = request?.query?._id;
     return await userModel.aggregate([
         {
             $match: {
@@ -250,19 +252,19 @@ authService.getAll = async (request) => {
                 is_deleted: '0'
             }
         },
-        
-       {
+
+        {
             $lookup: {
                 from: "links",
                 localField: "_id",
                 foreignField: "userId",
                 as: "social",
-                pipeline:[
+                pipeline: [
                     {
-                        $match:{
-                            status:'active',
-                            is_deleted:'0',
-                            type:'social'
+                        $match: {
+                            status: 'active',
+                            is_deleted: '0',
+                            type: 'social'
                         }
                     },
                     {
@@ -274,77 +276,77 @@ authService.getAll = async (request) => {
                     },
                     {
                         $sort: {
-                            sort_index: 1 ,
-                             type: -1,
+                            sort_index: 1,
+                            type: -1,
                         }
                     },
                     {
-                        $project:{
-                            _id:1,
-                            linkTitle:1,
-                            linkUrl:1,
-                            linkLogo:1,
-                            type:1,
-                            status:1,
-                            is_index:1
-                        }
-                    }
-                ]
-            }
-        },
-       {
-            $lookup: {
-                from: "links",
-                localField: "_id",
-                foreignField: "userId",
-                as: "non_social",
-                pipeline:[
-                    {
-                        $match:{
-                            status:'active',
-                            is_deleted:'0',
-                            type:'non_social'
-                        }
-                    },
-                    {
-                        $addFields: {
-                            sort_index: {
-                                $ifNull: ["$is_index", 999999]
-                            }
-                        }
-                    },
-                    {
-                        $sort: {
-                            sort_index: 1 ,
-                             type: -1,
-                        }
-                    },
-                    {
-                        $project:{
-                            _id:1,
-                            linkTitle:1,
-                            linkUrl:1,
-                            linkLogo:1,
-                            type:1,
-                            status:1,
-                            is_index:1
+                        $project: {
+                            _id: 1,
+                            linkTitle: 1,
+                            linkUrl: 1,
+                            linkLogo: 1,
+                            type: 1,
+                            status: 1,
+                            is_index: 1
                         }
                     }
                 ]
             }
         },
         {
-            $project:{
-                _id:1,
-                username:1,
-                email:1,
-                bio:1,
-                profile_img:1,
-                banner_img:1,
-                theme:1,
-                social:1,
-                non_social:1,
-                
+            $lookup: {
+                from: "links",
+                localField: "_id",
+                foreignField: "userId",
+                as: "non_social",
+                pipeline: [
+                    {
+                        $match: {
+                            status: 'active',
+                            is_deleted: '0',
+                            type: 'non_social'
+                        }
+                    },
+                    {
+                        $addFields: {
+                            sort_index: {
+                                $ifNull: ["$is_index", 999999]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            sort_index: 1,
+                            type: -1,
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            linkTitle: 1,
+                            linkUrl: 1,
+                            linkLogo: 1,
+                            type: 1,
+                            status: 1,
+                            is_index: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                email: 1,
+                bio: 1,
+                profile_img: 1,
+                banner_img: 1,
+                theme: 1,
+                social: 1,
+                non_social: 1,
+
             }
         }
 
@@ -355,18 +357,18 @@ authService.getTokenAll = async (request) => {
     console.log("user data ", userId);
     return await userModel.aggregate([
         {
-            $match:{
-                is_deleted:'0',
-                status:'active',
-                _id:new mongoose.Types.ObjectId(userId)
+            $match: {
+                is_deleted: '0',
+                status: 'active',
+                _id: new mongoose.Types.ObjectId(userId)
             }
         },
         {
-            $project:{
-                username:1,
-                email:1,
-                bio:1,
-                profile_img:1,
+            $project: {
+                username: 1,
+                email: 1,
+                bio: 1,
+                profile_img: 1,
                 links: {
                     $filter: {
                         input: "$links",
@@ -381,7 +383,7 @@ authService.getTokenAll = async (request) => {
     ])
 };
 authService.getAllUser = async (request) => {
-     const search = request?.query?.search || "";
+    const search = request?.query?.search || "";
     const page = Number(request?.query?.page) || 1;
     const limit = Number(request?.query?.limit) || 10;
     const skip = (page - 1) * limit;
@@ -393,24 +395,24 @@ authService.getAllUser = async (request) => {
             }
         },
         {
-            $project:{
-                _id:1,
-                username:1,
-                email:1,
-                bio:1,
-                profile_img:1,
-                banner_img:1,
-                status :1
+            $project: {
+                _id: 1,
+                username: 1,
+                email: 1,
+                bio: 1,
+                profile_img: 1,
+                banner_img: 1,
+                status: 1
             }
         },
-                    
-      helper.applyPagination(skip, limit),
+
+        helper.applyPagination(skip, limit),
     ])
     const response = {
         getData: data ? data[0].paginatedResults : {},
         count: data[0].totalCount[0] ? data[0].totalCount[0].total : 0
     };
-    return response    
+    return response
 }
 authService.updateTheme = async (request) => {
     const { userId, themeType, fontFamily, is_colorImage } = request.body;
@@ -441,5 +443,22 @@ authService.updateTheme = async (request) => {
     await user.save();
     return user.theme;
 };
+authService.getTemplate = async (templateId, userId) => {
+    const template = await templateModel.findById(templateId);
+    if (!template) {
+        return { template: null };
+    }
+    const updatedUser = await userModel.findByIdAndUpdate(
+        userId,
+        {
+            'template.templateName': template.templateName,
+            'template.templateContent': template.templateContent
+        },
+        { new: true, runValidators: true }
+    );
+    return { template, updatedUser };
+}
+
+
 
 module.exports = authService

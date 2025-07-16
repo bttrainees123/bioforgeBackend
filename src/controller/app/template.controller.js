@@ -3,9 +3,13 @@ const { default: mongoose } = require("mongoose");
 const statusCodes = require('../../helper/statusCodes');
 const responseHelper = require('../../helper/response');
 const templateModel = require('../../model/template.model');
+const templateValidation = require('../../validation/app/template.validation');
 class templateController {
     add = async (request, response) => {
         try {
+            const { error } = await templateValidation.validateAddTemplate(request.body,);
+            const validationError = responseHelper.validatIonError(response, error);
+            if (validationError) return;
             const data = templateService.add(request);
             return responseHelper.success(response, `Template added successfully`, data, statusCodes.CREATED);
         } catch (error) {

@@ -69,6 +69,10 @@ const userSchema = new mongoose.Schema({
         default:'false',
         enum:['true','false']
     },
+    template:{
+        templateName:String,
+        templateContent :String
+    }
 }, {
     timestamps: true,
     toJSON: {
