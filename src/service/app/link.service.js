@@ -7,11 +7,11 @@ const { type } = require('os');
 const addLinksValidation = require('../../validation/app/addlink.validation');
 const { time } = require('console');
 const userModel = require('../../model/user.model');
-const { 
-    NotFoundError, 
-    BadRequestError, 
+const {
+    NotFoundError,
+    BadRequestError,
     ConflictError,
-    ValidationError,ForbiddenError
+    ValidationError, ForbiddenError
 } = require('../../helper/customeErrors');
 
 const linkService = {}
@@ -105,19 +105,19 @@ linkService.updateStatus = async (request) => {
 }
 linkService.updateIndex = async (request) => {
     // request.body.is_index = (request.body.is_index);
-    for(const item of request.body.items){
-        await linkModel.findByIdAndUpdate({_id:new mongoose.Types.ObjectId(item?._id)},{is_index:item.is_index});
+    for (const item of request.body.items) {
+        await linkModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(item?._id) }, { is_index: item.is_index });
     }
 
 };
 linkService.get = async (request) => {
     const userId = request?.auth?._id;
     const type = request?.query?.type;
-    
+
     const TypeCondition = {
         userId: new mongoose.Types.ObjectId(userId),
     };
-    
+
     if (type && ['social', 'non_social'].includes(type)) {
         TypeCondition.type = type;
     }
@@ -126,14 +126,14 @@ linkService.get = async (request) => {
         {
             $match: TypeCondition
         },
-       
+
         {
             $unwind: {
                 path: "$clicks",
                 preserveNullAndEmptyArrays: true
             }
         },
-     
+
         {
             $lookup: {
                 from: 'users',
@@ -158,7 +158,7 @@ linkService.get = async (request) => {
                 as: 'userInfo'
             }
         },
-       
+
         {
             $addFields: {
                 "clicks": {
@@ -192,6 +192,7 @@ linkService.get = async (request) => {
                 linkLogo: { $first: "$linkLogo" },
                 type: { $first: "$type" },
                 status: { $first: "$status" },
+                protectedLinks: { $first: "$protectedLinks" },
                 is_index: { $first: "$is_index" },
                 clickCount: { $first: "$clickCount" },
                 clicks: {
@@ -212,6 +213,7 @@ linkService.get = async (request) => {
                 linkLogo: 1,
                 type: 1,
                 status: 1,
+                protectedLinks: 1,
                 is_index: 1,
                 clickCount: 1,
                 clicks: {
@@ -223,7 +225,7 @@ linkService.get = async (request) => {
                 }
             }
         },
-         {
+        {
             $sort: {
                 updateAt: 1,
                 is_index: 1,
@@ -236,8 +238,8 @@ linkService.recordClickService = async ({ linkId, userId, ipAddress }) => {
     if (!link) {
         throw new ForbiddenError('Link not found')
     };
-      if (userId && String(userId) === String(link.userId)) {
-     
+    if (userId && String(userId) === String(link.userId)) {
+
         return { clickCount: link.clickCount };
     }
 

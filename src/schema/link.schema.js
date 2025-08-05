@@ -22,10 +22,10 @@ const linkSchema = new mongoose.Schema({
         enum: ['social', 'non_social'],
         default: 'social'
     },
-     is_index: {
-            type: Number,
-            default: 0
-        },
+    is_index: {
+        type: Number,
+        default: 0
+    },
     is_deleted: {
         type: String,
         enum: ["0", "1"],
@@ -37,18 +37,23 @@ const linkSchema = new mongoose.Schema({
         enum: ["active", "inactive"],
         default: "active"
     },
-     clicks: [
+    clicks: [
         {
-            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User',},
+            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', },
             ipAddress: { type: String, },
-            count:{ type: Number, default: 1 },
+            count: { type: Number, default: 1 },
             lastClickedAt: { type: Date, default: Date.now }
         }
     ],
     clickCount: {
         type: Number,
         default: 0
-    }
+    },
+    protectedLinks: {
+        type: String,
+        enum: ['public', 'private'],
+        default: 'public'
+    },
 
 }, {
     timestamps: true,

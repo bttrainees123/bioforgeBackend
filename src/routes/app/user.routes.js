@@ -4,7 +4,7 @@ const authController=require("../../controller/app/auth.controller");
 const linksController=require("../../controller/app/link.controller");
 const middleWare=require("../../middleware/user.middleware");
 const reportController = require('../../controller/app/report.controller');
-const templateController = require('../../controller/app/template.controller');
+const themeController = require('../../controller/app/theme.controller');
 
 userRouter.post("/register",authController.register);
 userRouter.post("/login",authController.login);
@@ -16,6 +16,7 @@ userRouter.post("/forgetPassword",authController.forgetPassword);
 userRouter.post("/updateProfile",middleWare,authController.updateProfile);
 userRouter.get("/getUserInfo",authController.getUserInfo);
 userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
+// userRouter.get("/getUserInfotoken",middleWare,authController.getUserTokenInfo);
 userRouter.get("/getAllUser",authController.getAllUser);
 userRouter.post('/logout', authController.logout);
 userRouter.get('/getTemplate', middleWare, authController.getTemplate);
@@ -35,9 +36,9 @@ userRouter.post('/link/click/:linkId',linksController.recordClick);
 userRouter.post('/report',middleWare,reportController.add);
 
 //template 
-userRouter.post('/add-template',middleWare,templateController.add);
-userRouter.post('/update-template',middleWare,templateController.update);
-userRouter.delete('/delete-template',middleWare,templateController.delete);
-userRouter.get('/getAll-template',middleWare,templateController.getAll);
+userRouter.post('/add-theme',middleWare,themeController.add);
+userRouter.post('/update-theme',middleWare,themeController.update);
+userRouter.delete('/delete-theme',middleWare,themeController.delete);
+userRouter.get('/getAll-theme',themeController.getAll);
 
 module.exports=userRouter

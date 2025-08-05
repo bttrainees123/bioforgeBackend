@@ -14,13 +14,14 @@ class authController {
             const { error } = await authValidation.validateRegister(request.body,);
             const validationError = responseHelper.validatIonError(response, error);
             if (validationError) return;
-            if (await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i'), is_deleted: "0" })) {
-                return responseHelper.Forbidden(response, "Email already exists", null, statusCodes.OK);
-            }
             const userData = await userModel.findOne({ username: request.body.username, is_deleted: "0" })
             if (userData) {
                 return responseHelper.Forbidden(response, "Username already exists", null, statusCodes.OK);
-            } const data = await authService.register(request);
+            } 
+            if (await userModel.findOne({ email: new RegExp(`^${request.body.email}$`, 'i'), is_deleted: "0" })) {
+                return responseHelper.Forbidden(response, "Email already exists", null, statusCodes.OK);
+            }
+            const data = await authService.register(request);
             return responseHelper.success(response, data.username + " " + "is registered successfully", null, statusCodes.OK);
         } catch (error) {
             console.log(error);
@@ -183,10 +184,13 @@ class authController {
     }
     updateProfile = async (request, response) => {
         try {
+            // const { error } = await authValidation.validateUpdateProfile(request.body,);
+            // const validationError = responseHelper.validatIonError(response, error);
+            // if (validationError) return;
             const _id = String(request.auth._id);
             const userData = await userModel.findOne({ _id: request?.body?._id, is_deleted: '0' });
             if (String(userData._id) !== _id) {
-                return responseHelper.Forbidden(response, "You are not authorized to update this review.", null, statusCodes.OK);
+                return responseHelper.Forbidden(response, "You are not authorized to update this profile.", null, statusCodes.OK);
             }
             if (!userData) {
                 return responseHelper.Forbidden(response, `user not found`, null, statusCodes.OK)
@@ -208,7 +212,13 @@ class authController {
         try {
             const ObjectIdError = responseHelper.mongooseObjectIdError(request?.query?._id, response, "_id");
             if (ObjectIdError) return;
-            const userInfo = await userModel.findOne({ _id: request.query._id, is_deleted: '0' });
+            const userInfo = await userModel.findOne({ _id: request.query._id });
+            if (userInfo.status === 'inactive'){
+                return responseHelper.Forbidden(response , userInfo?.username + " " + "you are inactive by admin !contact to admin",null ,statusCodes.UNAUTHORIZED);
+            }
+            if(userInfo.is_deleted === "1"){
+                return responseHelper.Forbidden(response ,userInfo?.username + " " + "Account deleted by admin ", null, statusCodes.UNAUTHORIZED);
+            }
             if (!userInfo) {
                 return responseHelper.Forbidden(response, `user not found`, null, statusCodes.OK)
             }
@@ -220,7 +230,19 @@ class authController {
         }
     }
     getUserTokenInfo = async (request, response) => {
-        try {
+         try {
+            const ObjectIdError = responseHelper.mongooseObjectIdError(request?.query?._id, response, "_id");
+            if (ObjectIdError) return;
+            const userInfo = await userModel.findOne({ _id: request.query._id });
+            if (userInfo.status === 'inactive'){
+                return responseHelper.Forbidden(response , userInfo?.username + " " + "you are inactive by admin !contact to admin",null ,statusCodes.UNAUTHORIZED);
+            }
+            if(userInfo.is_deleted === "1"){
+                return responseHelper.Forbidden(response ,userInfo?.username + " " + "you are deleted by admin ! contact to admin", null, statusCodes.UNAUTHORIZED);
+            }
+            if (!userInfo) {
+                return responseHelper.Forbidden(response, `user not found`, null, statusCodes.OK)
+            }
             const data = await authService.getTokenAll(request);
             return responseHelper.success(response, `all data fetched`, data, statusCodes.OK)
         } catch (error) {
@@ -250,8 +272,6 @@ class authController {
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
     };
-
-
     getTemplate = async (request, response) => {
         try {
             const { templateId } = request.query;

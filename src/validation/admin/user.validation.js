@@ -25,13 +25,40 @@ class userValidation {
                 .messages({
                     "string.empty": "Email is required",
                     "string.email": "Please provide a valid email address",
-                    "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
+                    "string.pattern.base": "Email must contain only letters digits and periods before",
                 }),
-            password: Joi.string().min(6).required().messages({
-                "string.empty": "Password_is_required",
-                "string.min": "Password_must_be_at_least_6_characters_long",
-            }),
-           
+            password: Joi.string()
+                .min(6)
+                .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+                .required()
+                .messages({
+                    'string.empty': 'Password is required',
+                    'string.min': 'Password must be at least 6 characters long',
+                    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+                }),
+            profile_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            banner_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            bio: Joi.string()
+                .min(3)
+                .max(1000)
+                .optional()
+                .messages({
+                    "string.empty": "bio text is required",
+                    "string.min": "bio text must be at least 3 characters long",
+                    "string.max": "bio text must not exceed 1000 characters",
+                }),
+
+
         });
     }
     /**
@@ -39,14 +66,14 @@ class userValidation {
     * @returns {Joi.ObjectSchema}
     */
     static update() {
-       return Joi.object({
-        _id: Joi.string()
-                        .pattern(/^[a-fA-F0-9]{24}$/)
-                        .required()
-                        .messages({
-                            "string.empty": "User ID is required",
-                            "string.pattern.base": "Invalid User ID format Must be a valid MongoDB ObjectId",
-                        }),
+        return Joi.object({
+            _id: Joi.string()
+                .pattern(/^[a-fA-F0-9]{24}$/)
+                .required()
+                .messages({
+                    "string.empty": "User ID is required",
+                    "string.pattern.base": "Invalid User ID format Must be a valid MongoDB ObjectId",
+                }),
             username: Joi.string()
                 .min(3)
                 .max(20)
@@ -65,18 +92,39 @@ class userValidation {
                 .messages({
                     "string.empty": "Email is required",
                     "string.email": "Please provide a valid email address",
-                    "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
+                    "string.pattern.base": "Email must contain only letters digits and periods before",
                 }),
             password: Joi.string().min(6).optional().messages({
-                "string.empty": "Password_is_required",
-                "string.min": "Password_must_be_at_least_6_characters_long",
+                "string.empty": "Password is required",
+                "string.min": "Password must be at least 6 characters long",
             }),
-            status: Joi.string().valid('active','inactive').optional().messages({
+            profile_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            banner_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            bio: Joi.string()
+                .min(3)
+                .max(1000)
+                .optional()
+                .messages({
+                    "string.empty": "bio text is required",
+                    "string.min": "bio text must be at least 3 characters long",
+                    "string.max": "bio text must not exceed 1000 characters",
+                }),
+            status: Joi.string().valid('active', 'inactive').optional().messages({
                 "string.empty": "Status either active or inactive",
-               
+
             })
 
-           
+
         });
     }
 

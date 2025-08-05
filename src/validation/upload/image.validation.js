@@ -12,10 +12,10 @@ class imageValidation {
                     if (!value || !value.mimetype) {
                         return helpers.error("any.required");
                     }
-                    if (!/^image\/(jpeg|png|jpg|gif|webp)$/.test(value.mimetype)) {
+                    if (!/^image\/(jpeg|png|jpg|gif|webp|avif)$/.test(value.mimetype)) {
                         return helpers.error("any.invalid");
                     }
-                    if (value.size > 1 * 1024 * 1024) { // Max file size: 5MB
+                    if (value.size > 20 * 1024 * 1024) { // Max file size: 5MB
                         return helpers.error("any.max");
                     }
                     return value;
@@ -37,10 +37,10 @@ class imageValidation {
                             if (!value || !value.mimetype) {
                                 return helpers.error("any.required");
                             }
-                            if (!/^image\/(jpeg|png|jpg|gif|webp)$/.test(value.mimetype)) {
+                            if (!/^image\/(jpeg|png|jpg|gif|webp|avif)$/.test(value.mimetype)) {
                                 return helpers.error("any.invalid");
                             }
-                            if (value.size > 1 * 1024 * 1024) {
+                            if (value.size > 20 * 1024 * 1024) {
                                 return helpers.error("any.max");
                             }
                             return value;

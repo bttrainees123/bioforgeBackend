@@ -43,13 +43,18 @@ class authValidation {
                 .messages({
                     "string.empty": "Email is required",
                     "string.email": "Please provide a valid email address",
-                    "string.pattern.base": "Email_must_contain_only_letters_digits_and_periods_before",
+                    "string.pattern.base": "Email must contain only letters digits and periods before",
                 }),
-            password: Joi.string().min(6).required().messages({
-                "string.empty": "Password_is_required",
-                "string.min": "Password_must_be_at_least_6_characters_long",
-            }),
-           
+            password: Joi.string()
+                .min(6)
+                .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+                .required()
+                .messages({
+                    'string.empty': 'Password is required',
+                    'string.min': 'Password must be at least 6 characters long',
+                    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+                }),
+
         });
     }
 
@@ -112,8 +117,8 @@ class authValidation {
                     "string.pattern.base": "Invalid User ID format Must be a valid MongoDB ObjectId",
                 }),
             password: Joi.string().min(6).required().messages({
-                "string.empty": "Password is required" ,
-                "string.min":  "Password must be at least 6 characters long" ,
+                "string.empty": "Password is required",
+                "string.min": "Password must be at least 6 characters long",
             }),
         });
     }
@@ -176,6 +181,49 @@ class authValidation {
 
         });
     }
+    static updateProfile() {
+        return Joi.object({
+            _id: Joi.string()
+                .required()
+                .messages({
+                    "string.empty": "ID is required",
+                }),
+            profile_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            banner_img: Joi.string()
+                .required()
+                .messages({
+                    "string.base": "Profile image must be a string",
+                    "string.empty": "Profile image is required",
+                }),
+            bio: Joi.string()
+                .min(3)
+                .max(1000)
+                .required()
+                .messages({
+                    "string.empty": "bio text is required",
+                    "string.min": "bio text must be at least 3 characters long",
+                    "string.max": "bio text must not exceed 1000 characters",
+                }),
+            theme: Joi.any().optional().messages({
+                "any.required": "Theme is required",
+            }),
+            protectedLinksPassword: Joi.string()
+                .min(6)
+                .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$'))
+                .optional()
+                .messages({
+                    'string.empty': 'Password is required',
+                    'string.min': 'Password must be at least 6 characters long',
+                    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+                }),
+            })
+    }
+
 
 
 
@@ -240,6 +288,9 @@ class authValidation {
 
     static validateAccountDelete(data) {
         return authValidation.accountDelete().validate(data, { abortEarly: false });
+    }
+    static validateUpdateProfile(data) {
+        return authValidation.updateProfile().validate(data, { abortEarly: false });
     }
 }
 

@@ -18,7 +18,7 @@ class adminController {
                 return responseHelper.BadRequest(response, `Password is wrong`, null, statusCodes.OK);
             }
             const data = await authService.login(userData)
-            return responseHelper.success(response, `${data.name} is login successfully`, data, statusCodes.OK);
+            return responseHelper.success(response, `${data.username} is login successfully`, data, statusCodes.OK);
 
         } catch (error) {
             console.log(error);

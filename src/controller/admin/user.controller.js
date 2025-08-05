@@ -5,8 +5,8 @@ const userValidation = require("../../validation/admin/user.validation")
 const statusCodes = require("../../helper/statusCodes")
 const userModel = require("../../model/user.model");
 const { default: mongoose } = require("mongoose");
-const templateModel = require("../../model/template.model");
-const templateService = require("../../service/app/template.service");
+const themeModel = require("../../model/theme.model");
+const templateService = require("../../service/app/theme.service");
 class userController {
     add = async (request, response) => {
         try {
@@ -108,7 +108,7 @@ class userController {
             const objectId = responseHelper.mongooseObjectIdError(request?.query?._id, response, "_id"
             );
             if (objectId) return;
-            const templateInfo = await templateModel.findOne({ _id: new mongoose.Types.ObjectId(request?.query?._id) })
+            const templateInfo = await themeModel.findOne({ _id: new mongoose.Types.ObjectId(request?.query?._id) })
             if (!templateInfo) {
                 return responseHelper.Forbidden(response, "template not exists", null, statusCodes.OK);
             } else if (templateInfo.is_deleted === '1') {
@@ -116,11 +116,47 @@ class userController {
             }
             await userService.templateStatus(request)
             return responseHelper.success(response, `template status update successfully`, null, statusCodes.OK);
-        }catch (error) {
+        } catch (error) {
             console.log(error);
             return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
         }
 
-}
+    }
+    dashboard = async (request, response) => {
+        try {
+            const data = await userService.dashboard(request);
+            return responseHelper.success(response, `Dashboard data`, data, statusCodes.OK);
+        } catch (error) {
+            console.log(error);
+            return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+    getTemplateList = async (request, response) => {
+        try {
+            const data = await userService.getAll(request);
+            return responseHelper.success(response, `Template List`, data, statusCodes.OK);
+        } catch (error) {
+            console.log(error);
+            return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
+        }
+    }
+    themeStatus = async (request, response) => {
+        try {
+            const objectId = responseHelper.mongooseObjectIdError(request?.query?._id, response, "_id"
+            );
+            if (objectId) return;
+            const templateInfo = await themeModel.findOne({ _id: new mongoose.Types.ObjectId(request?.query?._id) })
+            if (!templateInfo) {
+                return responseHelper.Forbidden(response, "theme not exists", null, statusCodes.OK);
+            } 
+            await userService.themeStatus(request)
+            return responseHelper.success(response, `theme status update successfully`, null, statusCodes.OK);
+
+        } catch (error) {
+            console.log(error);
+            return responseHelper.error(response, error.message, statusCodes.INTERNAL_SERVER_ERROR);
+
+        }
+    }
 }
 module.exports = new userController()

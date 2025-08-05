@@ -8,7 +8,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const { type } = require("os");
 const { status } = require("../admin/user.service");
-const templateModel = require("../../model/template.model");
+const templateModel = require("../../model/theme.model");
 
 const authService = {}
 authService.register = async (request) => {
@@ -165,33 +165,41 @@ authService.changePassword = async (request) => {
     await userModel.findByIdAndUpdate({ _id: request?.auth?._id }, { password: hashpassword })
 };
 authService.accountDelete = async (request) => {
-    const userId = request?.auth?._id;
-    const user = await userModel.findById(userId);
-    if (user) {
-        if (user.profile_img) {
-            const profileImgPath = path.join("public", "profile", user.profile_img);
-            if (fs.existsSync(profileImgPath)) {
-                fs.unlink(profileImgPath, (err) => {
-                    if (err) {
-                        console.error(`Failed to delete profile image: ${err.message}`);
-                    }
-                });
-            }
-        }
-        if (user.banner_img) {
-            const bannerImgPath = path.join("public", "banner", user.banner_img);
-            if (fs.existsSync(bannerImgPath)) {
-                fs.unlink(bannerImgPath, (err) => {
-                    if (err) {
-                        console.error(`Failed to delete banner image: ${err.message}`);
-                    }
-                });
-            }
-        }
-    }
-    await userModel.findByIdAndUpdate({ _id: userId }, { is_deleted: "1" });
+    // const userId = request?.auth?._id;
+    // const user = await userModel.findById(userId);
+    // if (user) {
+    //     if (user.profile_img) {
+    //         const profileImgPath = path.join("public", "profile", user.profile_img);
+    //         if (fs.existsSync(profileImgPath)) {
+    //             fs.unlink(profileImgPath, (err) => {
+    //                 if (err) {
+    //                     console.error(`Failed to delete profile image: ${err.message}`);
+    //                 }
+    //             });
+    //         }
+    //     }
+    //     if (user.banner_img) {
+    //         const bannerImgPath = path.join("public", "banner", user.banner_img);
+    //         if (fs.existsSync(bannerImgPath)) {
+    //             fs.unlink(bannerImgPath, (err) => {
+    //                 if (err) {
+    //                     console.error(`Failed to delete banner image: ${err.message}`);
+    //                 }
+    //             });
+    //         }
+    //     }
+    // }
+    await userModel.findByIdAndUpdate({ _id: request?.auth?._id }, { is_deleted: "1" });
 };
 authService.updateprofile = async (request) => {
+    // const { protectedLinksPassword } = request.body;
+    // if (protectedLinksPassword) {
+    //     const hashpassword = await helper.createPassword(protectedLinksPassword);
+    //     request.body.protectedLinksPassword = hashpassword;
+    // } else {
+
+    //     delete request.body.protectedLinksPassword;
+    // }
     const userData = await userModel.findOne({ _id: request?.body?._id });
     const oldProfileImg = userData.profile_img || "";
     const newProfileImg = request.body.profile_img || "";
@@ -242,7 +250,233 @@ authService.updateprofile = async (request) => {
     );
     return;
 };
+// authService.getAll = async (request) => {
+//     const userId = request.query._id;
+//     const protectedLinksPassword = request.query.protectedLinksPassword;
+
+
+//     const user = await userModel.findById(userId).select('+protectedLinksPassword');
+
+//     let allowedProjected = ['public'];
+
+//     if (protectedLinksPassword && user) {
+//         const isMatch = await user.compareprotectedLinksPassword(protectedLinksPassword);
+//         if (isMatch) {
+//             allowedProjected = ['public', 'private'];
+//         }
+//     }
+
+
+//     const makePipeline = (type) => [
+//         {
+//             $match: {
+//                 status: 'active',
+//                 is_deleted: '0',
+//                 type,
+//                 protectedLinks: { $in: allowedProjected }
+//             }
+//         },
+//         {
+//             $addFields: {
+//                 sort_index: { $ifNull: ['$is_index', 999999] }
+//             }
+//         },
+//         {
+//             $sort: { sort_index: 1, type: -1 }
+//         },
+//         {
+//             $project: {
+//                 _id: 1,
+//                 linkTitle: 1,
+//                 linkUrl: 1,
+//                 linkLogo: 1,
+//                 type: 1,
+//                 status: 1,
+//                 is_index: 1,
+//                 protectedLinks: 1
+//             }
+//         }
+//     ];
+
+//     return await userModel.aggregate([
+//         {
+//             $match: {
+//                 _id: new mongoose.Types.ObjectId(userId),
+//                 status: 'active',
+//                 is_deleted: '0'
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: 'links',
+//                 localField: '_id',
+//                 foreignField: 'userId',
+//                 as: 'social',
+//                 pipeline: makePipeline('social')
+//             }
+//         },
+//         {
+//             $lookup: {
+//                 from: 'links',
+//                 localField: '_id',
+//                 foreignField: 'userId',
+//                 as: 'non_social',
+//                 pipeline: makePipeline('non_social')
+//             }
+//         },
+//         {
+//             $project: {
+//                 _id: 1,
+//                 username: 1,
+//                 email: 1,
+//                 bio: 1,
+//                 profile_img: 1,
+//                 banner_img: 1,
+//                 theme: 1,
+//                 social: 1,
+//                 non_social: 1
+//             }
+//         }
+//     ]);
+// };
 authService.getAll = async (request) => {
+    const userId = request?.query?._id;
+    const protectedLinksPassword = request?.query?.protectedLinksPassword;
+    let protectedLinksCondition = ["public"]; 
+    
+    if (protectedLinksPassword) {
+       
+        const user = await userModel.findById(userId, { protectedLinksPassword: 1 });
+        
+        if (user && user.protectedLinksPassword === protectedLinksPassword) {
+           
+            protectedLinksCondition = ["public", "private"];
+        }
+       
+    }
+
+    return await userModel.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(userId),
+                status: 'active',
+                is_deleted: '0'
+            }
+        },
+         {
+            $addFields: {
+                isProtectedLinkPassword: {
+                    $cond: {
+                        if: { $ifNull: ["$protectedLinksPassword", false] },
+                        then: true,
+                        else: false
+                    }
+                }
+            }
+        },
+        {
+            $lookup: {
+                from: "links",
+                localField: "_id",
+                foreignField: "userId",
+                as: "social",
+                pipeline: [
+                    {
+                        $match: {
+                            status: 'active',
+                            is_deleted: '0',
+                            type: 'social',
+                            protectedLinks: { $in: protectedLinksCondition }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            sort_index: {
+                                $ifNull: ["$is_index", 999999]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            sort_index: 1,
+                            type: -1,
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            linkTitle: 1,
+                            linkUrl: 1,
+                            linkLogo: 1,
+                            type: 1,
+                            status: 1,
+                            is_index: 1,
+                            protectedLinks: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $lookup: {
+                from: "links",
+                localField: "_id",
+                foreignField: "userId",
+                as: "non_social",
+                pipeline: [
+                    {
+                        $match: {
+                            status: 'active',
+                            is_deleted: '0',
+                            type: 'non_social',
+                            protectedLinks: { $in: protectedLinksCondition }
+                        }
+                    },
+                    {
+                        $addFields: {
+                            sort_index: {
+                                $ifNull: ["$is_index", 999999]
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            sort_index: 1,
+                            type: -1,
+                        }
+                    },
+                    {
+                        $project: {
+                            _id: 1,
+                            linkTitle: 1,
+                            linkUrl: 1,
+                            linkLogo: 1,
+                            type: 1,
+                            status: 1,
+                            is_index: 1,
+                            protectedLinks: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                username: 1,
+                email: 1,
+                bio: 1,
+                profile_img: 1,
+                banner_img: 1,
+                theme: 1,
+                social: 1,
+                non_social: 1,
+                isProtectedLinkPassword: 1,
+            }
+        }
+    ]);
+};
+authService.getTokenAll = async (request) => {
     const userId = request?.query?._id;
     return await userModel.aggregate([
         {
@@ -288,7 +522,8 @@ authService.getAll = async (request) => {
                             linkLogo: 1,
                             type: 1,
                             status: 1,
-                            is_index: 1
+                            is_index: 1,
+                            
                         }
                     }
                 ]
@@ -346,41 +581,12 @@ authService.getAll = async (request) => {
                 theme: 1,
                 social: 1,
                 non_social: 1,
+                protectedLinksPassword:1
 
             }
         }
 
     ]);
-};
-authService.getTokenAll = async (request) => {
-    const userId = request?.auth?._id;
-    console.log("user data ", userId);
-    return await userModel.aggregate([
-        {
-            $match: {
-                is_deleted: '0',
-                status: 'active',
-                _id: new mongoose.Types.ObjectId(userId)
-            }
-        },
-        {
-            $project: {
-                username: 1,
-                email: 1,
-                bio: 1,
-                profile_img: 1,
-                links: {
-                    $filter: {
-                        input: "$links",
-                        as: "link",
-                        cond: { $eq: ["$$link.status", "active"] }
-                    }
-                }
-
-
-            }
-        }
-    ])
 };
 authService.getAllUser = async (request) => {
     const search = request?.query?.search || "";

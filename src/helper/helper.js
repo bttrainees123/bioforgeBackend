@@ -14,6 +14,9 @@ helper.createPassword = async (password) => {
 helper.comparePassword = async (password, hashPassword) => {
     return await bcrypt.compare(password, hashPassword)
 }
+helper.compareprotectedLinksPassword = function (candidate) {
+    return bcrypt.compare(candidate, this.protectedLinksPassword);
+};
 helper.generateTokken = (Data) => {
     return jwt.sign(Data, secretkey, { expiresIn: "24h" })
 }
@@ -45,21 +48,21 @@ helper.getFilteredTopic = (language) => ({
 });
 
 helper.moveFileFromFolder = async (filename, targetFolder) => {
-  if (!filename) return null;
-  const tempDir = path.join(__dirname, "../../public/tempUploads");
-  const targetDir = path.join(__dirname, "../../public", targetFolder);
-  const sourcePath = path.join(tempDir, filename);
-  if (!fs.existsSync(sourcePath)) {
-    console.log(`File not found: ${sourcePath}`);
-    return null;
-  }
-  const alreadyRenamed = /^\d{13}___/.test(filename);
-  const newFilename = alreadyRenamed ? filename : `${Date.now()}___${filename}`;
-  const destinationPath = path.join(targetDir, newFilename);
-  if (!fs.existsSync(targetDir)) {
-    await mkdir(targetDir, { recursive: true });
-  }
-  fs.renameSync(sourcePath, destinationPath);
-  return newFilename;
+    if (!filename) return null;
+    const tempDir = path.join(__dirname, "../../public/tempUploads");
+    const targetDir = path.join(__dirname, "../../public", targetFolder);
+    const sourcePath = path.join(tempDir, filename);
+    if (!fs.existsSync(sourcePath)) {
+        console.log(`File not found: ${sourcePath}`);
+        return null;
+    }
+    const alreadyRenamed = /^\d{13}___/.test(filename);
+    const newFilename = alreadyRenamed ? filename : `${Date.now()}___${filename}`;
+    const destinationPath = path.join(targetDir, newFilename);
+    if (!fs.existsSync(targetDir)) {
+        await mkdir(targetDir, { recursive: true });
+    }
+    fs.renameSync(sourcePath, destinationPath);
+    return newFilename;
 };
 module.exports = helper

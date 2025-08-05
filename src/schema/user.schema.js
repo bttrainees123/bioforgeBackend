@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -21,11 +22,11 @@ const userSchema = new mongoose.Schema({
     },
     profile_img: {
         type: String,
-        default: "d8.webp"
+        default: "twitter.png"
     },
     banner_img: {
         type: String,
-        default: "d2.webp"
+        default: "abstract.jpg"
     },
     status: {
         type: String,
@@ -38,20 +39,47 @@ const userSchema = new mongoose.Schema({
             enum: ["color", "img"]
         },
         fontFamily: {
-            type: String
+            type: String,
+            default: 'cursive'
         },
         fontColor: {
-            type: String
+            type: String,
+            default: '#ffffff'
         },
         is_colorImage: {
-            type: String
+            type: String,
+            default: '#52dab2'
+        },
+        themeDesign: {
+            type: String,
+            default: 'retro'
         }
     },
+    protectedLinks: {
+        type: String,
+        enum: ['public', 'private'],
+        default: 'public'
+    },
+    protectedLinksPassword: {
+        type: String,
+        select: false,
+        validate: {
+            validator: function (v) {
+                if (this.protectedLinks === 'private') {
+                    return typeof v === 'string' && v.trim().length > 0;
+                }
+                return v == null || v === '';
+            },
+            message: props =>
+                `protectedLinksPassword is required when protectedLinks is private`,
+        },
+    },
+
     is_deleted: {
         type: String,
         enum: ["0", "1"],
         default: "0"
-    },inactiveReason: {
+    }, inactiveReason: {
         type: String,
         enum: ['Multiple reports', 'Admin action', 'Violation', 'Other'],
         default: null
@@ -64,39 +92,48 @@ const userSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    reportStatus:{
-        type:String,
-        default:'false',
-        enum:['true','false']
+    reportStatus: {
+        type: String,
+        default: 'false',
+        enum: ['true', 'false']
     },
-    template:{
-        templateName:String,
-        templateContent :String
-    }
-}, {
-    timestamps: true,
-    toJSON: {
-        virtuals: false,
-        transform: function (doc, ret) {
-            if (ret.links && Array.isArray(ret.links)) {
-                ret.links.forEach(link => {
-                    delete link.id;
-                });
-            }
-            return ret;
-        }
+    themeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'theme'
     },
-    toObject: {
-        virtuals: false,
-        transform: function (doc, ret) {
-            if (ret.links && Array.isArray(ret.links)) {
-                ret.links.forEach(link => {
-                    delete link.id;
-                });
-            }
-            return ret;
-        }
-    }
-});
 
+},
+    {
+        timestamps: true,
+        toJSON: {
+            virtuals: false,
+            transform: function (doc, ret) {
+                if (ret.links && Array.isArray(ret.links)) {
+                    ret.links.forEach(link => {
+                        delete link.id;
+                    });
+                }
+                return ret;
+            }
+        },
+        toObject: {
+            virtuals: false,
+            transform: function (doc, ret) {
+                if (ret.links && Array.isArray(ret.links)) {
+                    ret.links.forEach(link => {
+                        delete link.id;
+                    });
+                }
+                return ret;
+            }
+        }
+
+    },
+
+);
+
+userSchema.methods.compareprotectedLinksPassword = async function (candidate) {
+    return bcrypt.compare(candidate, this.protectedLinksPassword);
+}
 module.exports = userSchema;
+
