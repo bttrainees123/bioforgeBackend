@@ -213,6 +213,11 @@ class authController {
             const ObjectIdError = responseHelper.mongooseObjectIdError(request?.query?._id, response, "_id");
             if (ObjectIdError) return;
             const userInfo = await userModel.findOne({ _id: request.query._id });
+         
+            if( request?.query?.protectedLinksPassword && userInfo.protectedLinksPassword !== request?.query?.protectedLinksPassword){
+                return responseHelper.BadRequest(response,`password is worng`,null, statusCodes.OK)
+            }
+            
             if (userInfo.status === 'inactive'){
                 return responseHelper.Forbidden(response , userInfo?.username + " " + "you are inactive by admin !contact to admin",null ,statusCodes.UNAUTHORIZED);
             }

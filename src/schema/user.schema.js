@@ -62,17 +62,8 @@ const userSchema = new mongoose.Schema({
     },
     protectedLinksPassword: {
         type: String,
-        select: false,
-        validate: {
-            validator: function (v) {
-                if (this.protectedLinks === 'private') {
-                    return typeof v === 'string' && v.trim().length > 0;
-                }
-                return v == null || v === '';
-            },
-            message: props =>
-                `protectedLinksPassword is required when protectedLinks is private`,
-        },
+       
+        
     },
 
     is_deleted: {
@@ -132,8 +123,5 @@ const userSchema = new mongoose.Schema({
 
 );
 
-userSchema.methods.compareprotectedLinksPassword = async function (candidate) {
-    return bcrypt.compare(candidate, this.protectedLinksPassword);
-}
 module.exports = userSchema;
 
