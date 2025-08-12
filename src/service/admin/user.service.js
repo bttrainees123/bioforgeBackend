@@ -120,7 +120,7 @@ userService.dashboard = async (request) => {
 };
 
 userService.getAll = async (request) => {
-     const search = request?.query?.search || "";
+    const search = request?.query?.search || "";
     const page = Number(request?.query?.page) || 1;
     const limit = Number(request?.query?.limit) || 10;
     const skip = (page - 1) * limit;

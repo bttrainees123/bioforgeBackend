@@ -5,6 +5,9 @@ const linksController=require("../../controller/app/link.controller");
 const middleWare=require("../../middleware/user.middleware");
 const reportController = require('../../controller/app/report.controller');
 const themeController = require('../../controller/app/theme.controller');
+const videoController = require('../../controller/app/video.controller');
+const subscribeController = require('../../controller/app/subscribe.controller');
+const linkCategoryController = require('../../controller/app/linkCategory.controller');
 
 userRouter.post("/register",authController.register);
 userRouter.post("/login",authController.login);
@@ -40,5 +43,22 @@ userRouter.post('/add-theme',middleWare,themeController.add);
 userRouter.post('/update-theme',middleWare,themeController.update);
 userRouter.delete('/delete-theme',middleWare,themeController.delete);
 userRouter.get('/getAll-theme',themeController.getAll);
+
+//video
+userRouter.post('/add-video',middleWare,videoController.add);
+userRouter.post('/update-video',middleWare,videoController.update);
+userRouter.delete('/delete-video',middleWare,videoController.delete);
+userRouter.get('/getAll-video',middleWare,videoController.getAll);
+userRouter.get('/status-video',middleWare,videoController.status);
+
+//linkCategory
+userRouter.post('/add-linkCategory',middleWare,linkCategoryController.add);
+userRouter.post('/update-linkCategory',middleWare,linkCategoryController.update);
+userRouter.delete('/delete-linkCategory',middleWare,linkCategoryController.delete);
+userRouter.get('/getAll-linkCategory',middleWare,linkCategoryController.getAll);
+userRouter.get('/status-linkCategory',middleWare,linkCategoryController.status);
+//subscribe
+userRouter.post('/add-subscribe',middleWare,subscribeController.add);
+userRouter.get('/getAll-subscribe',middleWare,subscribeController.getAll);
 
 module.exports=userRouter

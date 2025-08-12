@@ -342,17 +342,17 @@ authService.updateprofile = async (request) => {
 authService.getAll = async (request) => {
     const userId = request?.query?._id;
     const protectedLinksPassword = request?.query?.protectedLinksPassword;
-    let protectedLinksCondition = ["public"]; 
-    
+    let protectedLinksCondition = ["public"];
+
     if (protectedLinksPassword) {
-       
+
         const user = await userModel.findById(userId, { protectedLinksPassword: 1 });
-        
+
         if (user && user.protectedLinksPassword === protectedLinksPassword) {
-           
+
             protectedLinksCondition = ["public", "private"];
         }
-       
+
     }
 
     return await userModel.aggregate([
@@ -363,7 +363,7 @@ authService.getAll = async (request) => {
                 is_deleted: '0'
             }
         },
-         {
+        {
             $addFields: {
                 isProtectedLinkPassword: {
                     $cond: {
@@ -446,12 +446,71 @@ authService.getAll = async (request) => {
                         }
                     },
                     {
+                        $lookup: {
+                            from: 'videos',
+                            localField: "videoId",
+                            foreignField: "_id",
+                            as: 'video',
+                            pipeline: [
+                                {
+                                    $match: {
+                                        is_deleted: '0',
+                                        status: "active"
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        videoLink: 1,
+                                        videoTitle:1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$video",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
+                        $lookup: {
+                            from: 'linkcategories',
+                            localField: "LinkCategoryId",
+                            foreignField: "_id",
+                            as: 'linkcategory',
+                            pipeline: [
+                                {
+                                    $match: {
+                                        is_deleted: '0',
+                                        status: "active"
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        title: 1,
+                                        image: 1,
+                                        link:1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$linkcategory",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
                         $project: {
                             _id: 1,
                             linkTitle: 1,
                             linkUrl: 1,
                             linkLogo: 1,
                             type: 1,
+                            video:1,
+                            linkcategory:1,
                             status: 1,
                             is_index: 1,
                             protectedLinks: 1
@@ -523,7 +582,7 @@ authService.getTokenAll = async (request) => {
                             type: 1,
                             status: 1,
                             is_index: 1,
-                            
+
                         }
                     }
                 ]
@@ -557,11 +616,40 @@ authService.getTokenAll = async (request) => {
                         }
                     },
                     {
+                        $lookup: {
+                            from: 'videos',
+                            localField: "videoId",
+                            foreignField: "_id",
+                            as: 'video',
+                            pipeline: [
+                                {
+                                    $match: {
+                                        is_deleted: '0',
+                                        status: "active"
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        videoLink: 1,
+                                        videoTitle:1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        $unwind: {
+                            path: "$video",
+                            preserveNullAndEmptyArrays: true
+                        }
+                    },
+                    {
                         $project: {
                             _id: 1,
                             linkTitle: 1,
                             linkUrl: 1,
                             linkLogo: 1,
+                            video: 1,
                             type: 1,
                             status: 1,
                             is_index: 1
@@ -581,7 +669,7 @@ authService.getTokenAll = async (request) => {
                 theme: 1,
                 social: 1,
                 non_social: 1,
-                protectedLinksPassword:1
+                protectedLinksPassword: 1
 
             }
         }

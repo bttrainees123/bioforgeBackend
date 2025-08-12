@@ -17,6 +17,14 @@ const linkSchema = new mongoose.Schema({
         type: String,
 
     },
+    videoId:{
+         type: mongoose.Schema.Types.ObjectId,
+        ref: "videos"
+    },
+    LinkCategoryId:[{
+         type: mongoose.Schema.Types.ObjectId,
+        ref: "linkcategory"
+    }],
     type: {
         type: String,
         enum: ['social', 'non_social'],

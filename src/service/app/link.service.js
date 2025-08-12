@@ -15,8 +15,6 @@ const {
 } = require('../../helper/customeErrors');
 
 const linkService = {}
-
-// Helper function to reorder indexes after deletion
 linkService.reorderIndexes = async (userId) => {
     const links = await linkModel.find({
         userId: userId,
@@ -55,11 +53,13 @@ linkService.add = async (request) => {
 };
 linkService.update = async (request) => {
     const linkData = await linkModel.findOne({ _id: request?.body?._id });
+
     const oldImage = linkData.linkLogo || "";
     const newImage = request.body.linkLogo || "";
     const tempUploadPath = path.join("public", "tempUploads", newImage);
     if (newImage && fs.existsSync(tempUploadPath)) {
         await helper.moveFileFromFolder(newImage, "linkLogo");
+
         if (oldImage && oldImage !== newImage) {
             const oldImagePath = path.join("public", "linkLogo", oldImage);
             if (fs.existsSync(oldImagePath)) {
@@ -74,12 +74,23 @@ linkService.update = async (request) => {
         }
         request.body.linkLogo = newImage;
     }
-    await linkModel.findByIdAndUpdate(
-        { _id: new mongoose.Types.ObjectId(request?.body?._id) },
-        request.body
-    );
+
+    const updateData = { ...request.body };
+    if (!Object.prototype.hasOwnProperty.call(request.body, "videoId")) {
+        await linkModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(request?.body?._id) },
+            { $unset: { videoId: "" }, $set: updateData }
+        );
+    } else {
+        await linkModel.updateOne(
+            { _id: new mongoose.Types.ObjectId(request?.body?._id) },
+            { $set: updateData }
+        );
+    }
+
     return;
-}
+};
+
 linkService.delete = async (request) => {
     const link = await linkModel.findOne({ _id: new mongoose.Types.ObjectId(request?.query?._id) });
     if (link && link.linkLogo) {
@@ -193,6 +204,8 @@ linkService.get = async (request) => {
                 type: { $first: "$type" },
                 status: { $first: "$status" },
                 protectedLinks: { $first: "$protectedLinks" },
+                videoId: { $first: "$videoId" },
+                LinkCategoryId: { $first: "$LinkCategoryId" },
                 is_index: { $first: "$is_index" },
                 clickCount: { $first: "$clickCount" },
                 clicks: {
@@ -214,6 +227,8 @@ linkService.get = async (request) => {
                 type: 1,
                 status: 1,
                 protectedLinks: 1,
+                videoId: 1,
+                LinkCategoryId:1,
                 is_index: 1,
                 clickCount: 1,
                 clicks: {
