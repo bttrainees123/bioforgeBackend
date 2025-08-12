@@ -62,8 +62,8 @@ const userSchema = new mongoose.Schema({
     },
     protectedLinksPassword: {
         type: String,
-       
-        
+
+
     },
 
     is_deleted: {
@@ -92,7 +92,21 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'theme'
     },
-
+    subscriptionExpiry: {
+        type: Date,
+        default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    },
+    subscription: {
+        subscriptionType: {
+            type: String,
+            enum: [ "premium", "free", "expired"],
+            default: "free"
+        },
+        amount: {
+            type: Number,
+            default: 0
+        }
+    },
 },
     {
         timestamps: true,

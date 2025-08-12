@@ -40,6 +40,10 @@ const userMiddleWare = async (request, response, nextFunction) => {
                 if (reportCount >= 2) {
                     await userModel.findByIdAndUpdate(userData._id, { reportStatus: 'true' });
                 }
+                // if (userData?.subscriptionExpiry < new Date()) {
+                //     await userModel.findByIdAndUpdate({ _id: new mongoose.Types.ObjectId(decodedToken?._id) }, { subscription: { subscriptionType: "expired", amount: 0 }, subscriptionExpiry: new Date() })
+                //     userData = await userModel.findOne({ _id: new mongoose.Types.ObjectId(decodedToken?._id) });
+                // }
                 request.auth = userData;
                 nextFunction();
             } catch (dbError) {
