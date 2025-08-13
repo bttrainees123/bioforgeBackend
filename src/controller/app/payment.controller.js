@@ -214,7 +214,7 @@ class PaymentController {
   static async handleWebhook(req, res) {
     const sig = req.headers['stripe-signature'];
     let event;
-
+  console.log(req.body);
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
