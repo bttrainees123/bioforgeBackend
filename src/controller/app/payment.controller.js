@@ -214,13 +214,13 @@ class PaymentController {
   static async handleWebhook(req, res) {
     const sig = req.headers['stripe-signature'];
     let event;
-  console.log("jkjjkhjhjhj",req.body);
     try {
-      event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+        event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
-      console.log(`Webhook signature verification failed.`, err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
+        console.log(`Webhook signature verification failed.`, err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
     }
+    console.log("webhook is calling here...............",req.body);
 
     // Handle the event
     try {
