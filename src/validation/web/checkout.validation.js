@@ -3,10 +3,10 @@ class checkoutValidation {
     static payment() {
         return Joi.object({
             amount: Joi.string()
-                .valid(3.99, 43.00)
+                .valid(99,399,995.17,1825.17)
                 .required()
                 .messages({
-                    "any.only": "amount must be either 3.99 or 43",
+                    "any.only": "amount must be either 99, 399, 995.17 or 1825.17",
                     "string.empty": "amount is required",
                 }),
         });

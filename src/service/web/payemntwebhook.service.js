@@ -14,7 +14,7 @@ payementWebhookService.paymentCheckout = async (request) => {
                 price_data: {
                     currency: 'usd',
                     product_data: {
-                        name: request.body.amount === 3.99 ? 'Subscriber' : 'Gold Subscriber',
+                        name: request.body.amount === 99 ? 'Subscriber' : 'Pro Subscriber',
                     },
                     unit_amount: amountInCents,
                 },
@@ -26,20 +26,16 @@ payementWebhookService.paymentCheckout = async (request) => {
         cancel_url: stripeConfig.cancelUrl,
         metadata: {
             amount: request?.body?.amount.toString(),
-            subscription: request.body.amount === 3.99 ? 'Subscriber' : 'Gold Subscriber',
+            subscription: request.body.amount === 99 ? 'Subscriber' : 'Pro Subscriber',
             userId: request?.auth?._id.toString(),
             email: request?.auth?.email.toString(),
-            phone: request?.auth?.phoneNumber.toString(),
-            countryCode: request?.auth?.countryCode.toString(),
         },
         payment_intent_data: {
             metadata: {
                 amount: request?.body?.amount.toString(),
-                subscription: request.body.amount === 3.99 ? 'Subscriber' : 'Gold Subscriber',
+                subscription: request.body.amount === 99 ? 'Subscriber' : 'Pro Subscriber',
                 userId: request?.auth?._id.toString(),
                 email: request?.auth?.email.toString(),
-                phone: request?.auth?.phoneNumber.toString(),
-                countryCode: request?.auth?.countryCode.toString(),
             }
         }
     });
