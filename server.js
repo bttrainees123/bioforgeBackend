@@ -30,11 +30,17 @@ app.use("/images", express.static(path.join(__dirname, "/public/default")));
 app.use("/images", express.static(path.join(__dirname, "/public/themeImg")));
 app.use("/images", express.static(path.join(__dirname, "/public/linkCategory")));
 
-// Webhook endpoint MUST be before express.json() middleware
-app.use('/api/payment/webhook', express.raw({ type: 'application/json' }));
+// Webhook endpoint MUST be before any other body-parsing middleware
+app.use((req, res, next) => {
+  if (req.originalUrl === "/api/payment/webhook") {
+    
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    express.json({ limit: "50mb" })(req, res, next);
+  }
+});
 
-// Regular middleware
-app.use(express.json({ limit: "50mb" }));
+// Regular middleware (removed the duplicate express.json() here)
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(fileUpload())
 
